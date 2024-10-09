@@ -1,3 +1,3 @@
-# Gestion_Cotizaciones
+# RestaurantManager
 
-Proyecto de gestión de solicitudes de cotizaciones para el curso de Arquitectura de Software aplicando patrones: MVC
+Proyecto de gestión de ventas de un restaurante para el curso de Sistemas Empresariales aplicando patrones: MVC
