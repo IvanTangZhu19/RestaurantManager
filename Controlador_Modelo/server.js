@@ -1,11 +1,15 @@
 const express = require('express');
 const cors = require('cors');
 const database = require('./config/database');
+const userRoutes = require('./routes/r_usuarios');
 require('dotenv').config();
 
 const server = express();
+server.use(express.json());
 
 database.initialize();
+
+server.use('/usuarios', userRoutes);
 
 const port = 4001;
 server.listen(port, () => {
