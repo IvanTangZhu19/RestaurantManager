@@ -17,7 +17,7 @@ async function insertUser(req, res) {
         if(user.success) {
             res.status(201).json({message: "Usuario creado"});
         } else {
-            res.status(500).json({message: "Error al insertar"});
+            res.status(500).json({message: user.mensaje});
         }
     }catch (err){
         res.status(500).json({error: "Error al crear usuarios"});
