@@ -51,7 +51,9 @@ async function insertUser(nombre, contraseña, rol){
                 {nombre, contraseña: hashPassword, rolID},
                 {autoCommit: true}
             );
-            return {success: true};
+            if(result.rowsAffected == 1) return {success: true};
+            else return {success: false};
+
         } else {
             console.log(mensajeError);
             return {succes: false, mensaje: mensajeError}
