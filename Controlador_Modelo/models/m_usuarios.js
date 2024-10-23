@@ -70,5 +70,6 @@ async function insertUser(nombre, contraseña, rol){
 
 module.exports = {
     getUsers,
-    insertUser
+    insertUser,
+    getUser
 };

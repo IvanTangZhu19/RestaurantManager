@@ -1,4 +1,5 @@
 const userModel = require('../models/m_usuarios');
+const bcrypt = require('bcrypt');
 
 async function getAllUsers(req, res) {
     try{
@@ -24,7 +25,26 @@ async function insertUser(req, res) {
     }
 }
 
+async function login(req, res){
+    try{
+        const {nombre, contraseña} = req.body;
+        const user = await userModel.getUser(nombre);
+        var contraseñaValida;
+        //console.log(user.length);
+        if(user.length >= 1){
+            contraseñaValida = await bcrypt.compare(contraseña, user[0][2]);
+            if(contraseñaValida) res.status(200).json({status: true});
+            else res.status(500).json({mensaje: "Contraseña incorrecta"});
+        } else {
+            res.status(500).json({mensaje: "Nombre de usuario no existente"});
+        }
+    }catch (err){
+        res.status(500).json({error: "Error login: "+err});
+    }
+}
+
 module.exports = {
     getAllUsers,
-    insertUser
+    insertUser,
+    login
 };
