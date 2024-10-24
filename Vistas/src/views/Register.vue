@@ -81,7 +81,7 @@ export default {
 }
 
 .register-box {
-  background: #fff;
+  background: #F56767;
   padding: 2rem;
 }
 

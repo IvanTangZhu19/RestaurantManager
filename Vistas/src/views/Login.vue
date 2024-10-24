@@ -16,7 +16,6 @@
               required
             />
           </div>
-          
           <div class="input-group">
             <label for="contrasena">Contraseña:</label>
             <input 
@@ -35,6 +34,7 @@
             Si no te has registrado: 
             <router-link to="/register">Registrarse aquí</router-link>
           </p>
+          <p>{{ this.formData.error }}</p>
         </form>
       </div>
     </div>
@@ -42,21 +42,32 @@
 </template>
 
 <script>
+import axios from 'axios';
 export default {
   name: 'Login',
   data() {
     return {
       formData: {
         usuario: '',
-        contrasena: ''
+        contrasena: '',
+        error: 'Mensaje de errores'
       }
     }
   },
   methods: {
-    login() {
-      // Aquí irá la lógica de login cuando implementemos el backend
-      console.log('Datos de login:', this.formData)
-      this.$router.push('/sales')
+    async login() {
+      try {
+        this.formData.error = this.formData.contrasena;
+        const response = await axios.post('http://localhost:4001/usuarios/login', {
+          nombre: this.formData.usuario,
+          contraseña: this.formData.contrasena,
+        });
+        console.log('Datos de login:', this.formData);
+        console.log(response.data);
+        this.$router.push('/sales'); 
+      } catch (err) {
+        this.formData.error = 'Error en login ' + err;
+      }
     }
   }
 }
