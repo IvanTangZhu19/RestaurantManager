@@ -1,0 +1,1 @@
+const clientModel = require('../models/m_clientes');
