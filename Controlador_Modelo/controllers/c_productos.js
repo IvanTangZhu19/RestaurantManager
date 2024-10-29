@@ -13,6 +13,7 @@ async function insertProduct(req, res) {
     try{
         const {nombre, precio, costo} = req.body;
         if(!nombre || !precio || !costo) return res.status(400).json({error: "Faltan datos"});
+        if(precio <=0 || costo <= 0) return res.status(400).json({error: "Los precios no pueden ser menores a cero"});
         const user = await productModel.insertProduct(nombre, precio, costo);
         if(user.success) {
             res.status(201).json({message: "Producto creado"});

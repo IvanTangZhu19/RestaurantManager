@@ -36,13 +36,13 @@ async function getClient(nombre, direccion){
     }
 }
 
-async function insertClient(nombre, direccion, telefono){
+async function insertClient(nombre, direccion, telefono, descripcion){
     let connection;
     try {
         connection = await oracledb.getConnection();
         const result = await connection.execute(
-            `INSERT INTO Clientes (id, nombre, direccion, telefono) VALUES (cliente_seq.NEXTVAL, :nombre, :direccion, :telefono)`,
-            {nombre, direccion, telefono},
+            `INSERT INTO Clientes (id, nombre, direccion, telefono, descripcion) VALUES (clientes_seq.NEXTVAL, :nombre, :direccion, :telefono, :descripcion)`,
+            {nombre, direccion, telefono, descripcion},
             {autoCommit: true}
         );
         if(result.rowsAffected == 1) return {success: true};
