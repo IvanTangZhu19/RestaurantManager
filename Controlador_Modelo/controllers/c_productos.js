@@ -25,7 +25,23 @@ async function insertProduct(req, res) {
     }
 }
 
+async function deleteProduct(req, res) {
+    try{
+        const {nombre, id} = req.body;
+        if(!nombre) return res.status(400).json({error: "Faltan datos"});
+        const product = await productModel.deleteProduct(nombre);
+        if(product.success) {
+            res.status(201).json({message: "Producto eliminado"});
+        } else {
+            res.status(400).json({message: "Producto no eliminado: " + product.message });
+        }
+    }catch (err){
+        res.status(500).json({error: "Error al eliminar producto"});
+    }
+}
+
 module.exports = {
     getAllProducts,
-    insertProduct
+    insertProduct,
+    deleteProduct
 };

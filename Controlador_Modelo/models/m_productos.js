@@ -42,7 +42,8 @@ async function insertProduct(nombre, precio, costo){
         connection = await oracledb.getConnection();
         const productoExistente = await getProduct(nombre);
         var result;
-        if(productoExistente.length < 0){
+        console.log(productoExistente.length);
+        if(productoExistente.length <= 0){
             result = await connection.execute(
                 `INSERT INTO Productos (id, nombre, precio, costo) VALUES (productos_seq.NEXTVAL, :nombre, :precio, :costo)`,
                 {nombre, precio, costo},
@@ -71,16 +72,16 @@ async function deleteProduct(nombre){
         var result;
         if(productoExistente.length > 0){
             result = await connection.execute(
-                `INSERT INTO Productos (id, nombre, precio, costo) VALUES (productos_seq.NEXTVAL, :nombre, :precio, :costo)`,
-                {nombre, precio, costo},
+                `DELETE FROM Productos WHERE nombre = :nombre`,
+                { nombre },
                 {autoCommit: true}
             );
             if(result.rowsAffected == 1) return {success: true};
-            else return {success: false};
-        } else return {success: false, mensaje: "No existe el producto"};
+            else return {success: false, message: "No se eliminó el producto"};
+        } else return {success: false, message: "No existe el producto"};
     } catch (err) {
         console.error("Error al insertar producto: ", err);
-
+        return {success: false, message: "Error: "+err}
     } finally {
         if(connection){
             try { await connection.close();}
