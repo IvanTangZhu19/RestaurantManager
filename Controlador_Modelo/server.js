@@ -10,6 +10,12 @@ require('dotenv').config();
 const server = express();
 server.use(express.json());
 
+server.use(cors({
+  origin: 'http://localhost:8080',
+  methods: 'GET,POST,PUT,DELETE',
+  allowedHeaders: 'Content-Type,Authorization'
+}));
+
 database.initialize();
 
 server.use('/usuarios', userRoutes);
