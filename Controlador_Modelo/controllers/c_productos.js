@@ -14,11 +14,11 @@ async function insertProduct(req, res) {
         const {nombre, precio, costo} = req.body;
         if(!nombre || !precio || !costo) return res.status(400).json({error: "Faltan datos"});
         if(precio <=0 || costo <= 0) return res.status(400).json({error: "Los precios no pueden ser menores a cero"});
-        const user = await productModel.insertProduct(nombre, precio, costo);
-        if(user.success) {
+        const product = await productModel.insertProduct(nombre, precio, costo);
+        if(product.success) {
             res.status(201).json({message: "Producto creado"});
         } else {
-            res.status(500).json({message: "Producto no creado"});
+            res.status(400).json({message: "Producto no creado: " + product.message });
         }
     }catch (err){
         res.status(500).json({error: "Error al crear producto"});
