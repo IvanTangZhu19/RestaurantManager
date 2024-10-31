@@ -8,4 +8,6 @@ router.post('/producto', productsController.insertProduct);
 
 router.delete('/eliminarProducto', productsController.deleteProduct);
 
+router.put('/actualizarProducto', productsController.updateProduct);
+
 module.exports = router;

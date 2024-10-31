@@ -40,8 +40,24 @@ async function deleteProduct(req, res) {
     }
 }
 
+async function updateProduct(req, res) {
+    try{
+        const {nombre, precio, costo, id} = req.body;
+        if(!nombre || !precio || !costo || !id) return res.status(400).json({error: "Faltan datos"});
+        const product = await productModel.updateProduct(id, nombre, precio, costo);
+        if(product.success) {
+            res.status(201).json({message: "Producto actualizado"});
+        } else {
+            res.status(400).json({message: "Producto no actualizado: " + product.message });
+        }
+    }catch (err){
+        res.status(500).json({error: "Error al actualizar producto"});
+    }
+}
+
 module.exports = {
     getAllProducts,
     insertProduct,
-    deleteProduct
+    deleteProduct,
+    updateProduct
 };
