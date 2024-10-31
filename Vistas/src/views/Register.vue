@@ -56,14 +56,29 @@ export default {
     }
   },
   methods: {
-    register() {
-      if (this.formData.contrasena !== this.formData.confirmarContrasena) {
-        alert('Las contraseñas no coinciden')
-        return
+  async register() {
+    if (this.formData.contrasena !== this.formData.confirmarContrasena) {
+      alert('Las contraseñas no coinciden');
+      return;
+    }
+    
+    try {
+      const response = await axios.post('http://localhost:4001/usuarios/usuario', {
+        nombre: this.formData.usuario,
+        contraseña: this.formData.contrasena,
+        rol: 'usuario' 
+      });
+      
+      if (response.status === 201) {
+        alert('Registro exitoso! Ahora puedes iniciar sesión.');
+        this.$router.push('/');
       }
-      this.$router.push('/')
+    } catch (err) {
+      alert('Error al registrarse: ' + (err.response ? err.response.data.error : err.message));
     }
   }
+}
+
 }
 </script>
 
