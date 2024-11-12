@@ -61,6 +61,7 @@ create table RestaurantManager.Pedidos_Productos
     id number not null,
     pedidoID number not null,
     productoID number not null,
+    cantidad number not null,
     constraint pedido_productos_pedido_fk foreign key (pedidoID) references RestaurantManager.Pedidos(id) enable,
     constraint pedido_productos_producto_fk foreign key (productoID) references RestaurantManager.productos(id) enable,
     constraint pedido_productos_pk primary key (id) enable
