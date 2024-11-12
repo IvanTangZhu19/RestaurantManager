@@ -52,6 +52,7 @@ create table RestaurantManager.Pedidos
     id number not null,
     fecha timestamp not null,
     clienteID number not null,
+    estado varchar2(50) not null,
     constraint pedido_cliente_fk foreign key (clienteID) references RestaurantManager.Clientes(id) enable,
     constraint pedido_pk primary key (id) enable
 );
