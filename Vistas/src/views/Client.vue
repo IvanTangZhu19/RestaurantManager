@@ -244,6 +244,7 @@
   padding: 10px 15px;
   border-radius: 5px;
   cursor: pointer;
+  font-size: 16px;
 }
 
 .close-btn {
@@ -253,6 +254,7 @@
   padding: 10px 15px;
   border-radius: 5px;
   cursor: pointer;
+  font-size: 16px;
 }
   </style>
   
