@@ -4,7 +4,7 @@ const router = express.Router();
 
 router.get('/', pedidoController.getAllOrders);
 
-router.get('/fecha', pedidoController.getOrdersByDate);
+router.post('/fecha', pedidoController.getOrdersByDate);
 
 router.post('/pedido', pedidoController.insertOrder);
 

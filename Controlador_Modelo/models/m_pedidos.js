@@ -55,6 +55,7 @@ function organizarPedidos(datos) {
       // Si no existe, crear un nuevo pedido
       if (!pedido) {
         pedido = {
+          fecha: fila[1],
           id: fila[0], // ID del pedido (fila[0])
           cliente: {
             id: fila[3], // ClienteID (fila[1])

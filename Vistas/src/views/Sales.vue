@@ -6,7 +6,7 @@
           <div class="pedido-header">
             <h3>Pedido #{{ pedido.id }}</h3>
             <p><strong>Cliente:</strong> {{ pedido.cliente.nombre }}</p>
-            <p class="pedido-fecha"><strong>Fecha:</strong> {{ formatDate(pedido.fecha) }}</p>
+            <p class="pedido-fecha"><strong>Fecha:</strong> {{ this.formatDate(pedido.fecha) }}</p>
           </div>
           <div class="pedido-body">
             <h4>Productos:</h4>
@@ -14,6 +14,9 @@
               <li v-for="producto in pedido.productos" :key="producto.id" class="producto-item">
                 <span class="producto-nombre">{{ producto.cantidad }} {{ producto.nombre }}</span>
                 <span class="producto-precio"> ${{ producto.precio.toFixed(2) }}</span>
+              </li>
+              <li class="producto-item">
+                <span class="producto-nombre"><strong>Total:</strong> ${{ calcularTotalPedido(pedido).toFixed(2) }}</span>
               </li>
             </ul>
           </div>
@@ -50,7 +53,11 @@ export default {
   methods: {
     async fetchPedidos() {
       try {
-        const response = await axios.get('http://localhost:4001/pedidos/');
+        const today = new Date();
+        const dia = today.getDate();
+        const mes = today.getMonth() + 1;
+        const año = today.getFullYear();
+        const response = await axios.post('http://localhost:4001/pedidos/fecha', {dia, mes, año});
         this.pedidos = response.data;
       } catch (err) {
         this.errorMessage = 'Error al cargar pedidos: ' + err.message;
@@ -80,6 +87,11 @@ export default {
     formatDate(dateString) {
       const options = { year: 'numeric', month: 'long', day: 'numeric' };
       return new Date(dateString).toLocaleDateString(undefined, options);
+    },
+    calcularTotalPedido(pedido) {
+      return pedido.productos.reduce((total, producto) => {
+        return total + producto.precio * producto.cantidad;
+      }, 0);
     }
   },
   async created() {
@@ -89,7 +101,7 @@ export default {
 </script>
 <style scoped>
 .pedidos-container {
-  max-width: 1200px;
+  max-width: 1300px;
   margin: 0 auto;
   font-family: 'Arial', sans-serif;
 }
@@ -129,6 +141,7 @@ export default {
 }
 .producto-nombre {
   font-weight: bold;
+  margin-right: 10px;
 }
 .producto-cantidad, .producto-precio {
   color: #333;

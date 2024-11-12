@@ -1,6 +1,7 @@
 <template>
   <Layout>
     <div class="container">
+      <button @click="openAddModal" class="open-modal-btn">Agregar Producto</button>
       <table v-if="products.length" class="table">
         <thead>
           <tr>
@@ -16,21 +17,31 @@
             <td>{{ product[1] }}</td>
             <td>{{ product[2] }}</td>
             <td>{{ product[3] }}</td>
-            <td>{{ product[4] }}</td>
+            <td>
+              <button @click="openEditModal(product)" class="edit-btn">Editar</button>
+            </td>
           </tr>
         </tbody>
       </table>
-      <button @click="showModal = true" class="open-modal-btn">Agregar Producto</button>
       <div v-if="showModal" class="modal-overlay">
         <div class="modal">
-          <form @submit.prevent="insertProduct" class="form">
-            <h3>Agregar Nuevo Producto</h3>
-            <input type="text" v-model="newProduct.nombre" placeholder="Nombre" required />
-            <input type="number" v-model="newProduct.precio" placeholder="Precio" required />
-            <input type="number" v-model="newProduct.costo" placeholder="Costo" required />
+          <form @submit.prevent="isEditing ? updateProduct() : insertProduct()" class="form">
+            <h3>{{ isEditing ? 'Editar Producto' : 'Agregar Nuevo Producto' }}</h3>
+            <div class="form-group">
+              <label>Nombre</label>
+              <input type="text" v-model="newProduct.nombre" placeholder=" " required />
+            </div>
+            <div class="form-group">
+              <label>Precio</label>
+              <input type="number" v-model="newProduct.precio" placeholder=" " required />
+            </div>
+            <div class="form-group">
+              <label>Costo</label>
+              <input type="number" v-model="newProduct.costo" placeholder=" " required />
+            </div>
             <div class="modal-actions">
-              <button type="submit" class="submit-btn">Agregar Producto</button>
-              <button type="button" @click="showModal = false" class="close-btn">Cancelar</button>
+              <button type="submit" class="submit-btn">{{ isEditing ? 'Guardar Cambios' : 'Agregar Producto' }}</button>
+              <button type="button" @click="closeModal" class="close-btn">Cancelar</button>
             </div>
             <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
             <p v-if="successMessage" class="success">{{ successMessage }}</p>
@@ -55,13 +66,15 @@ export default {
     return {
       products: [],
       newProduct: {
+        id: 0,
         nombre: '',
         precio: 0,
         costo: 0,
       },
       errorMessage: '',
       successMessage: '',
-      showModal: false
+      showModal: false,
+      isEditing: false
     };
   },
   methods: {
@@ -73,18 +86,49 @@ export default {
         this.errorMessage = 'Error al cargar clientes: ' + err.message;
       }
     },
+    openAddModal() {
+      this.isEditing = false;
+      this.newProduct = { nombre: '', precio: 0, costo: 0 };
+      this.showModal = true;
+    },
     async insertProduct() {
       try {
         const response = await axios.post('http://localhost:4001/productos/producto', this.newProduct);
         if (response.status === 201) {
           this.mostrarMensaje('Producto agregado', 'success' );
-          this.showModal = false;
-          this.newProduct = { nombre: '', precio: 0, costo: 0 };
           this.fetchProducts(); // Actualiza la lista
+          this.closeModal();
         }
       } catch (err) {
         this.mostrarMensaje('Error'+err, 'error');
       }
+    },
+    async updateProduct(){
+      try {
+        const response = await axios.put('http://localhost:4001/productos/actualizarProducto', this.newProduct);
+        if (response.status === 201) {
+          this.mostrarMensaje('Producto actualizado', 'success' );
+          this.fetchProducts(); // Actualiza la lista
+          this.closeModal();
+        }
+      } catch (err) {
+        this.mostrarMensaje('Error'+err, 'error');
+      }
+    },
+    openEditModal(product) {
+      this.isEditing = true;
+      this.newProduct = {
+        id: product[0],
+        nombre: product[1],
+        precio: product[2],
+        costo: product[3]
+      };
+      this.showModal = true;
+    },
+    closeModal() {
+      this.showModal = false;
+      this.errorMessage = '';
+      this.successMessage = '';
     },
     mostrarMensaje(titulo, icon){
       Swal.fire({
@@ -252,5 +296,33 @@ padding: 10px 15px;
 border-radius: 5px;
 cursor: pointer;
 font-size: 15px;
+}
+
+.edit-btn {
+  background-color: #f0ad4e;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 15px;
+}
+.edit-btn:hover {
+  background-color: #ec971f;
+}
+
+.form-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.form-group input {
+  flex: 1;
+  padding: 8px;
+  margin-right: 10px;
+}
+
+.form-group label {
+  width: 100px; /* Define el ancho de las etiquetas */
 }
 </style>
