@@ -43,6 +43,7 @@
 
 <script>
 import axios from 'axios';
+import Swal from 'sweetalert2';
 export default {
   name: 'Login',
   data() {
@@ -59,17 +60,25 @@ export default {
     try {
       const response = await axios.post('http://localhost:4001/usuarios/login', {
         nombre: this.formData.usuario,
-        contraseña: this.formData.contrasena, // Asegúrate de usar la propiedad correcta
+        contraseña: this.formData.contrasena,
       });
       
-      if (response.data.status) { // Verifica que el login sea exitoso
-        this.$router.push('/sales'); // Redirige al usuario a la pantalla de ventas
+      if (response.data.status) { 
+        this.$router.push('/sales'); 
+        this.mostrarAlerta();
       } else {
         this.formData.error = 'Credenciales incorrectas';
       }
     } catch (err) {
       this.formData.error = 'Error en login: ' + (err.response ? err.response.data.mensaje : err.message);
     }
+  },
+  mostrarAlerta() {
+    Swal.fire({
+      title: '¡Inicio de Sesión exitoso!',
+      icon: 'success',
+      confirmButtonText: 'Aceptar'
+    });
   }
 }
 
