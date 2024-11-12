@@ -25,7 +25,7 @@
               required
             />
           </div>
-          
+          <p class="error">{{ this.formData.error }}</p>
           <button type="submit" class="submit-btn">
             Iniciar
           </button>
@@ -34,7 +34,6 @@
             Si no te has registrado: 
             <router-link to="/register">Registrarse aquí</router-link>
           </p>
-          <p>{{ this.formData.error }}</p>
         </form>
       </div>
     </div>
@@ -44,6 +43,7 @@
 <script>
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import EventBus  from '../event-bus.js';
 export default {
   name: 'Login',
   data() {
@@ -51,7 +51,7 @@ export default {
       formData: {
         usuario: '',
         contrasena: '',
-        error: 'Mensaje de errores'
+        error: ''
       }
     }
   },
@@ -62,8 +62,8 @@ export default {
         nombre: this.formData.usuario,
         contraseña: this.formData.contrasena,
       });
-      
       if (response.data.status) { 
+        this.enviarDato();
         this.$router.push('/sales'); 
         this.mostrarAlerta();
       } else {
@@ -79,6 +79,10 @@ export default {
       icon: 'success',
       confirmButtonText: 'Aceptar'
     });
+  },
+  enviarDato() {
+    const username = this.formData.usuario;
+    EventBus.emit('usuario', {usuario: username});
   }
 }
 
@@ -169,6 +173,14 @@ input:focus {
   text-align: center;
   color: white;
 }
+
+.error {
+  margin-top: 1rem;
+  text-align: right;
+  font-weight: bold;
+  color: #8B0000;
+}
+
 
 .register-link a {
   color: white;

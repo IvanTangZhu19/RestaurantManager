@@ -3,7 +3,7 @@
   <div class="layout">
     <header class="header">
       <h1>RestaurantManager</h1>
-      <span class="user-info">Usuario: {{ username }}</span>
+      <span class="user-info">Usuario: {{ this.username }} </span>
     </header>
     
     <div class="content">
@@ -31,6 +31,7 @@
 
   
   <script>
+import EventBus from '../event-bus.js';
   export default {
     name: 'Layout',
     data() {
@@ -39,15 +40,23 @@
         menuItems: [
           { name: 'Ventas', path: '/sales' },
           { name: 'Ganancias', path: '/earnings' },
-          { name: 'Productos', path: '/products' }
+          { name: 'Productos', path: '/products' },
+          { name: 'Clientes', path: '/client'}
         ]
       }
+    },
+    mounted() {
+      EventBus.on('usuario', (dato) => {
+        this.username = dato.usuario;
+      });
     },
     computed: {
       currentPage() {
         const currentRoute = this.menuItems.find(item => item.path === this.$route.path)
         return currentRoute ? currentRoute.name : ''
       }
+    },
+    methods: {
     }
   }
   </script>

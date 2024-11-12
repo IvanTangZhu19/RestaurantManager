@@ -4,6 +4,7 @@ import Register from '../views/Register.vue'
 import Sales from '../views/Sales.vue'
 import Earnings from '../views/Earnings.vue'
 import Products from '../views/Products.vue'
+import Client from '../views/Client.vue'
 
 const routes = [
   {
@@ -31,6 +32,11 @@ const routes = [
     name: 'Products',
     component: Products,
   },
+  {
+    path: '/client',
+    name: 'Clients',
+    component: Client
+  }
 ];
 
 const router = createRouter({
