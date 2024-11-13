@@ -19,7 +19,7 @@
             <select v-model="selectedClient" @change="fetchOrdersByClient">
               <option value="">Todos los clientes</option>
               <option v-for="cliente in clientes" :key="cliente.id" :value="cliente.id">
-                {{ cliente.nombre }}
+                {{ cliente[1] }}
               </option>
             </select>
           </div>
@@ -63,9 +63,9 @@
           <form @submit.prevent="showEditModal ? updatePedido() : createPedido()">
             <div class="form-group">
               <label>Cliente:</label>
-              <select v-model="currentPedido.clienteId" required>
-                <option v-for="cliente in clientes" :key="cliente.id" :value="cliente.id">
-                  {{ cliente.nombre }}
+              <select v-model="currentPedido.clienteID" required>
+                <option v-for="cliente in clientes" :key="cliente[0]" :value="cliente[0]">
+                  {{ cliente[1] }}
                 </option>
               </select>
             </div>
@@ -74,7 +74,7 @@
               <h4>Productos</h4>
               <div v-for="(producto, index) in currentPedido.productos" :key="index" class="producto-form">
                 <select v-model="producto.id" @change="updateProductoInfo(index)">
-                  <option v-for="p in productos" :key="p.id" :value="p.id">{{ p.nombre }}</option>
+                  <option v-for="p in productos" :key="p.id" :value="p.id">{{ p[1] }}</option>
                 </select>
                 <input type="number" v-model="producto.cantidad" min="1" placeholder="Cantidad">
                 <button type="button" @click="removeProducto(index)" class="btn-remove">×</button>
@@ -113,9 +113,9 @@ export default {
       showCreateModal: false,
       showEditModal: false,
       currentPedido: {
-        clienteId: null,
+        clienteID: null,
         productos: [],
-        fecha: new Date().toISOString()
+        fecha: new Date()
       },
       filterDate: {
         dia: null,
@@ -128,7 +128,7 @@ export default {
   methods: {
     async fetchPedidos() {
       try {
-        const response = await axios.get('http://localhost:4001/pedidos');
+        const response = await axios.get('http://localhost:4001/pedidos/');
         this.pedidos = response.data;
       } catch (error) {
         this.mostrarMensaje('Error al cargar pedidos', 'error');
@@ -137,7 +137,7 @@ export default {
 
     async fetchClientes() {
       try {
-        const response = await axios.get('http://localhost:4001/clientes');
+        const response = await axios.get('http://localhost:4001/clientes/');
         this.clientes = response.data;
       } catch (error) {
         this.mostrarMensaje('Error al cargar clientes', 'error');
@@ -146,7 +146,7 @@ export default {
 
     async fetchProductos() {
       try {
-        const response = await axios.get('http://localhost:4001/productos');
+        const response = await axios.get('http://localhost:4001/productos/');
         this.productos = response.data;
       } catch (error) {
         this.mostrarMensaje('Error al cargar productos', 'error');
@@ -155,7 +155,19 @@ export default {
 
     async createPedido() {
       try {
-        const response = await axios.post('http://localhost:4001/pedidos', this.currentPedido);
+        const today = new Date();
+
+        // Obtener el día, mes, año, hora y minutos
+        const day = today.getDate();
+        const month = today.getMonth() + 1;
+        const year = today.getFullYear();
+        const hours = today.getHours();
+        const minutes = today.getMinutes();
+
+        this.currentPedido.fecha = `${year}-${month.toString().padStart(2, '0')}-${day.toString()
+            .padStart(2, '0')} ${hours.toString().padStart(2, '0')}:${minutes
+            .toString().padStart(2, '0')}`;
+        const response = await axios.post('http://localhost:4001/pedidos/pedido', this.currentPedido);
         if (response.status === 201) {
           this.mostrarMensaje('Pedido creado exitosamente', 'success');
           await this.fetchPedidos();
@@ -292,7 +304,7 @@ export default {
     },
     async fetchAllOrders() {
       try {
-        const response = await axios.get('http://localhost:4001/pedidos');
+        const response = await axios.get('http://localhost:4001/pedidos/');
         this.pedidos = response.data;
       } catch (error) {
         this.mostrarMensaje('Error al cargar pedidos', 'error');
