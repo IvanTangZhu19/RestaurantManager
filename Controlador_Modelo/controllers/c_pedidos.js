@@ -10,19 +10,30 @@ async function getAllOrders(req, res) {
 }
 
 async function insertOrder(req, res) {
-    try{
-        const {fecha, clienteID, productos} = req.body;
-        if(!fecha || !clienteID || !productos) return res.status(400).json({error: "Faltan datos"});
-        const order = await pedidoModel.insertPedido(fecha, clienteID, productos);
-        if(order.success) {
-            res.status(201).json({message: "Pedido creado"});
-        } else {
-            res.status(400).json({message: "Pedido no creado: " + product.message });
+    try {
+        const { fecha, clienteID, productos } = req.body;
+        if (!fecha || !clienteID || !Array.isArray(productos) || productos.length === 0) {
+            return res.status(400).json({ error: "Faltan datos o la estructura de productos es incorrecta" });
         }
-    }catch (err){
-        res.status(500).json({error: "Error al crear pedido"});
+
+        // Verifica que cada producto tenga la estructura { productoID, cantidad }
+        const validProductos = productos.every(p => p.productoID && p.cantidad && p.cantidad > 0);
+        if (!validProductos) {
+            return res.status(400).json({ error: "La estructura de los productos es incorrecta o faltan datos" });
+        }
+
+        const order = await pedidoModel.insertPedido(fecha, clienteID, productos);
+        if (order.success) {
+            res.status(201).json({ message: "Pedido creado" });
+        } else {
+            res.status(400).json({ message: "Pedido no creado: " + order.message });
+        }
+    } catch (err) {
+        res.status(500).json({ error: "Error al crear pedido: " + err.message });
     }
 }
+
+
 async function deleteOrder(req, res) {
     try {
         const { id } = req.params;

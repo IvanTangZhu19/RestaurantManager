@@ -153,30 +153,34 @@ export default {
       }
     },
 
-    async createPedido() {
-      try {
-        const today = new Date();
+      async createPedido() {
+        try {
+          const today = new Date();
+          const day = today.getDate();
+          const month = today.getMonth() + 1;
+          const year = today.getFullYear();
+          const hours = today.getHours();
+          const minutes = today.getMinutes();
 
-        // Obtener el día, mes, año, hora y minutos
-        const day = today.getDate();
-        const month = today.getMonth() + 1;
-        const year = today.getFullYear();
-        const hours = today.getHours();
-        const minutes = today.getMinutes();
+          // Formatear la fecha actual
+          this.currentPedido.fecha = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
 
-        this.currentPedido.fecha = `${year}-${month.toString().padStart(2, '0')}-${day.toString()
-            .padStart(2, '0')} ${hours.toString().padStart(2, '0')}:${minutes
-            .toString().padStart(2, '0')}`;
-        const response = await axios.post('http://localhost:4001/pedidos/pedido', this.currentPedido);
-        if (response.status === 201) {
-          this.mostrarMensaje('Pedido creado exitosamente', 'success');
-          await this.fetchPedidos();
-          this.closeModal();
+          // Revisar la estructura de productos
+          this.currentPedido.productos = this.currentPedido.productos.map(producto => ({
+            productoID: producto.id,
+            cantidad: producto.cantidad
+          }));
+
+          const response = await axios.post('http://localhost:4001/pedidos/pedido', this.currentPedido);
+          if (response.status === 201) {
+            this.mostrarMensaje('Pedido creado exitosamente', 'success');
+            await this.fetchPedidos();
+            this.closeModal();
+          }
+        } catch (error) {
+          this.mostrarMensaje('Error al crear el pedido', 'error');
         }
-      } catch (error) {
-        this.mostrarMensaje('Error al crear el pedido', 'error');
-      }
-    },
+      },
 
     async updatePedido() {
       try {
