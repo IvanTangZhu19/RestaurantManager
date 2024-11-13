@@ -74,10 +74,10 @@
               <h4>Productos</h4>
               <div v-for="(producto, index) in currentPedido.productos" :key="index" class="producto-form">
                 <select v-model="producto.id" @change="updateProductoInfo(index)">
-                  <option v-for="p in productos" :key="p.id" :value="p.id">{{ p[1] }}</option>
+                  <option v-for="p in productos" :key="p.id" :value="p[0]">{{ p[1] }}</option>
                 </select>
                 <input type="number" v-model="producto.cantidad" min="1" placeholder="Cantidad">
-                <button type="button" @click="removeProducto(index)" class="btn-remove">×</button>
+                <button type="button" @click="removeProducto(index)" class="btn-remove"></button>
               </div>
               <button type="button" @click="addProducto" class="btn-add">Agregar Producto</button>
             </div>
@@ -316,8 +316,14 @@ export default {
     }
   },
   async created() {
+    const today = new Date();
+    const dia = today.getDate();
+    const mes = today.getMonth() + 1;
+    const año = today.getFullYear();
+    this.filterDate = {dia, mes, año};
     await Promise.all([
-      this.fetchAllOrders(),
+      this.fetchOrdersByDate(),
+      //this.fetchAllOrders(),
       this.fetchClientes(),
       this.fetchProductos()
     ]);
