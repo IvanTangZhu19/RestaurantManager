@@ -1,28 +1,78 @@
 <template>
   <Layout>
     <div class="pedidos-container">
+      <!-- Header with Add Order Button -->
+      <div class="header-actions">
+        <h2>Gestión de Pedidos</h2>
+        <button class="btn-primary" @click="showCreateModal = true">
+          Nuevo Pedido
+        </button>
+      </div>
+
+      <!-- Orders Grid -->
       <div v-if="pedidos.length" class="pedidos-grid">
         <div class="pedido-card" v-for="pedido in pedidos" :key="pedido.id">
           <div class="pedido-header">
             <h3>Pedido #{{ pedido.id }}</h3>
             <p><strong>Cliente:</strong> {{ pedido.cliente.nombre }}</p>
-            <p class="pedido-fecha"><strong>Fecha:</strong> {{ this.formatDate(pedido.fecha) }}</p>
+            <p class="pedido-fecha"><strong>Fecha:</strong> {{ formatDate(pedido.fecha) }}</p>
           </div>
           <div class="pedido-body">
             <h4>Productos:</h4>
             <ul class="productos-list">
               <li v-for="producto in pedido.productos" :key="producto.id" class="producto-item">
                 <span class="producto-nombre">{{ producto.cantidad }} {{ producto.nombre }}</span>
-                <span class="producto-precio"> ${{ producto.precio.toFixed(2) }}</span>
+                <span class="producto-precio">${{ producto.precio.toFixed(2) }}</span>
               </li>
-              <li class="producto-item">
-                <span class="producto-nombre"><strong>Total:</strong> ${{ calcularTotalPedido(pedido).toFixed(2) }}</span>
+              <li class="producto-item total">
+                <span class="producto-nombre"><strong>Total:</strong></span>
+                <span class="producto-precio">${{ calcularTotalPedido(pedido).toFixed(2) }}</span>
               </li>
             </ul>
+          </div>
+          <div class="pedido-actions">
+            <button class="btn-edit" @click="editPedido(pedido)">Editar</button>
+            <button class="btn-delete" @click="confirmarEliminar(pedido)">Eliminar</button>
           </div>
         </div>
       </div>
       <p v-else>No hay pedidos disponibles.</p>
+
+      <!-- Create/Edit Modal -->
+      <div v-if="showCreateModal || showEditModal" class="modal">
+        <div class="modal-content">
+          <h3>{{ showEditModal ? 'Editar' : 'Nuevo' }} Pedido</h3>
+          <form @submit.prevent="showEditModal ? updatePedido() : createPedido()">
+            <div class="form-group">
+              <label>Cliente:</label>
+              <select v-model="currentPedido.clienteId" required>
+                <option v-for="cliente in clientes" :key="cliente.id" :value="cliente.id">
+                  {{ cliente.nombre }}
+                </option>
+              </select>
+            </div>
+
+            <div class="productos-section">
+              <h4>Productos</h4>
+              <div v-for="(producto, index) in currentPedido.productos" :key="index" class="producto-form">
+                <select v-model="producto.id" @change="updateProductoInfo(index)">
+                  <option v-for="p in productos" :key="p.id" :value="p.id">{{ p.nombre }}</option>
+                </select>
+                <input type="number" v-model="producto.cantidad" min="1" placeholder="Cantidad">
+                <button type="button" @click="removeProducto(index)" class="btn-remove">×</button>
+              </div>
+              <button type="button" @click="addProducto" class="btn-add">Agregar Producto</button>
+            </div>
+
+            <div class="modal-actions">
+              <button type="submit" class="btn-primary">
+                {{ showEditModal ? 'Actualizar' : 'Crear' }}
+              </button>
+              <button type="button" @click="closeModal" class="btn-secondary">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   </Layout>
 </template>
@@ -33,117 +83,311 @@ import Layout from '../components/Layout.vue';
 import Swal from 'sweetalert2';
 
 export default {
-  name: 'Sales',
+  name: 'OrdersManagement',
   components: {
     Layout
   },
   data() {
     return {
       pedidos: [],
-      newPedido: {
-        fecha: '',
-        clienteID: 0,
-        productos: []
+      clientes: [],
+      productos: [],
+      showCreateModal: false,
+      showEditModal: false,
+      currentPedido: {
+        clienteId: null,
+        productos: [],
+        fecha: new Date().toISOString()
       },
-      errorMessage: '',
-      successMessage: '',
-      showModal: false
     };
   },
   methods: {
     async fetchPedidos() {
       try {
-        const today = new Date();
-        const dia = today.getDate();
-        const mes = today.getMonth() + 1;
-        const año = today.getFullYear();
-        const response = await axios.post('http://localhost:4001/pedidos/fecha', {dia, mes, año});
+        const response = await axios.get('http://localhost:4001/pedidos');
         this.pedidos = response.data;
-      } catch (err) {
-        this.errorMessage = 'Error al cargar pedidos: ' + err.message;
+      } catch (error) {
+        this.mostrarMensaje('Error al cargar pedidos', 'error');
       }
     },
-    async insertProduct() {
+
+    async fetchClientes() {
       try {
-        const response = await axios.post('http://localhost:4001/productos/producto', this.newProduct);
-        if (response.status === 201) {
-          this.mostrarMensaje('Producto agregado', 'success' );
-          this.showModal = false;
-          this.newProduct = { nombre: '', precio: 0, costo: 0 };
-          this.fetchProducts(); // Actualiza la lista
-        }
-      } catch (err) {
-        this.mostrarMensaje('Error'+err, 'error');
+        const response = await axios.get('http://localhost:4001/clientes');
+        this.clientes = response.data;
+      } catch (error) {
+        this.mostrarMensaje('Error al cargar clientes', 'error');
       }
     },
-    mostrarMensaje(titulo, icon){
+
+    async fetchProductos() {
+      try {
+        const response = await axios.get('http://localhost:4001/productos');
+        this.productos = response.data;
+      } catch (error) {
+        this.mostrarMensaje('Error al cargar productos', 'error');
+      }
+    },
+
+    async createPedido() {
+      try {
+        const response = await axios.post('http://localhost:4001/pedidos', this.currentPedido);
+        if (response.status === 201) {
+          this.mostrarMensaje('Pedido creado exitosamente', 'success');
+          await this.fetchPedidos();
+          this.closeModal();
+        }
+      } catch (error) {
+        this.mostrarMensaje('Error al crear el pedido', 'error');
+      }
+    },
+
+    async updatePedido() {
+      try {
+        const response = await axios.put(`http://localhost:4001/pedidos/${this.currentPedido.id}`, this.currentPedido);
+        if (response.status === 200) {
+          this.mostrarMensaje('Pedido actualizado exitosamente', 'success');
+          await this.fetchPedidos();
+          this.closeModal();
+        }
+      } catch (error) {
+        this.mostrarMensaje('Error al actualizar el pedido', 'error');
+      }
+    },
+
+    async deletePedido(pedido) {
+      try {
+        const response = await axios.delete(`http://localhost:4001/pedidos/${pedido.id}`);
+        if (response.status === 200) {
+          this.mostrarMensaje('Pedido eliminado exitosamente', 'success');
+          await this.fetchPedidos();
+        }
+      } catch (error) {
+        this.mostrarMensaje('Error al eliminar el pedido', 'error');
+      }
+    },
+
+    editPedido(pedido) {
+      this.currentPedido = { ...pedido };
+      this.showEditModal = true;
+    },
+
+    confirmarEliminar(pedido) {
+      Swal.fire({
+        title: '¿Estás seguro?',
+        text: "No podrás revertir esta acción",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.deletePedido(pedido);
+        }
+      });
+    },
+
+    addProducto() {
+      this.currentPedido.productos.push({
+        id: null,
+        cantidad: 1,
+        nombre: '',
+        precio: 0
+      });
+    },
+
+    removeProducto(index) {
+      this.currentPedido.productos.splice(index, 1);
+    },
+
+    updateProductoInfo(index) {
+      const producto = this.productos.find(p => p.id === this.currentPedido.productos[index].id);
+      if (producto) {
+        this.currentPedido.productos[index].nombre = producto.nombre;
+        this.currentPedido.productos[index].precio = producto.precio;
+      }
+    },
+
+    closeModal() {
+      this.showCreateModal = false;
+      this.showEditModal = false;
+      this.currentPedido = {
+        clienteId: null,
+        productos: [],
+        fecha: new Date().toISOString()
+      };
+    },
+
+    formatDate(dateString) {
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString(undefined, options);
+    },
+
+    calcularTotalPedido(pedido) {
+      return pedido.productos.reduce((total, producto) => {
+        return total + (producto.precio * producto.cantidad);
+      }, 0);
+    },
+
+    mostrarMensaje(titulo, icon) {
       Swal.fire({
         title: titulo,
         icon: icon,
         timer: 2000,
         showConfirmButton: false
       });
-    },
-    formatDate(dateString) {
-      const options = { year: 'numeric', month: 'long', day: 'numeric' };
-      return new Date(dateString).toLocaleDateString(undefined, options);
-    },
-    calcularTotalPedido(pedido) {
-      return pedido.productos.reduce((total, producto) => {
-        return total + producto.precio * producto.cantidad;
-      }, 0);
     }
   },
   async created() {
-    await this.fetchPedidos();
+    await Promise.all([
+      this.fetchPedidos(),
+      this.fetchClientes(),
+      this.fetchProductos()
+    ]);
   }
-}
+};
 </script>
+
 <style scoped>
 .pedidos-container {
   max-width: 1300px;
   margin: 0 auto;
+  padding: 20px;
   font-family: 'Arial', sans-serif;
 }
+
+.header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
 .pedidos-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Distribuir en 3 columnas */
-  gap: 20px; /* Espacio entre tarjetas */
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
 }
+
 .pedido-card {
   border: 1px solid #ddd;
   border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   padding: 15px;
   background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s;
 }
-.pedido-card:hover {
-  transform: scale(1.02);
-}
-.pedido-header {
-  border-bottom: 1px solid #e0e0e0;
-  margin-bottom: 10px;
-}
-.pedido-fecha {
-  color: #666;
+
+.pedido-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
 }
 
-.productos-list {
-  list-style: none;
-  padding: 0;
-}
-.producto-item {
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
-  justify-content: space-between;
-  padding: 5px 0;
-  border-bottom: 1px dashed #ccc;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
-.producto-nombre {
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.producto-form {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.btn-primary {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-edit {
+  background-color: #ffc107;
+  color: black;
+}
+
+.btn-delete {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-remove {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  cursor: pointer;
+}
+
+input, select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.productos-section {
+  margin: 20px 0;
+}
+
+.total {
+  margin-top: 10px;
   font-weight: bold;
-  margin-right: 10px;
-}
-.producto-cantidad, .producto-precio {
-  color: #333;
+  border-top: 2px solid #ddd;
+  padding-top: 10px;
 }
 </style>
