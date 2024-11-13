@@ -58,19 +58,20 @@ async function insertClient(nombre, direccion, telefono, descripcion){
     }
 }
 
-async function updateClient(nombre, direccion, telefono){
+async function updateClient(id, nombre, direccion, telefono, descripcion){
     let connection;
     try {
         connection = await oracledb.getConnection();
-        // const result = await connection.execute(
-        //     `INSERT INTO Clientes (id, nombre, direccion, telefono) VALUES (cliente_seq.NEXTVAL, :nombre, :direccion, :telefono)`,
-        //     {nombre, direccion, telefono},
-        //     {autoCommit: true}
-        //);
+        const result = await connection.execute(
+            `UPDATE Clientes SET nombre = :nombre, direccion=:direccion, telefono = :telefono, descripcion = :descripcion
+                WHERE id = :id`,
+            {nombre, direccion, telefono, descripcion, id},
+            {autoCommit: true}
+        );
         if(result.rowsAffected == 1) return {success: true};
         else return {success: false};
     } catch (err) {
-        console.error("Error al insertar cliente: ", err);
+        console.error("Error al actualizar cliente: ", err);
 
     } finally {
         if(connection){

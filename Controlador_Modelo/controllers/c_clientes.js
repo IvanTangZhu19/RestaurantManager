@@ -24,7 +24,23 @@ async function insertClient(req, res) {
     }
 }
 
+async function updateClient(req, res) {
+    try{
+        const {id, nombre, direccion, telefono, descripcion} = req.body;
+        if(!id || !nombre || !direccion || !telefono || !descripcion) return res.status(400).json({error: "Faltan datos"});
+        const user = await clientModel.updateClient(id, nombre, direccion, telefono, descripcion);
+        if(user.success) {
+            res.status(201).json({message: "Cliente actualizado"});
+        } else {
+            res.status(500).json({message: "Cliente no actualizado"});
+        }
+    }catch (err){
+        res.status(500).json({error: "Error al actualizar cliente"});
+    }
+}
+
 module.exports = {
     getAllClients,
-    insertClient
+    insertClient,
+    updateClient
 };

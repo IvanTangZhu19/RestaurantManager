@@ -6,4 +6,6 @@ router.get('/', clientsController.getAllClients);
 
 router.post('/cliente', clientsController.insertClient);
 
+router.put('/actualizarCliente', clientsController.updateClient);
+
 module.exports = router;
