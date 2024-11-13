@@ -142,8 +142,93 @@ async function insertProductosPedido(pedidoID, productos){
     }
 }
 
+async function deletePedido(id) {
+    let connection;
+    try {
+        connection = await oracledb.getConnection();
+        // Primero eliminar los productos asociados
+        await connection.execute(
+            `DELETE FROM Pedidos_productos WHERE pedidoID = :id`,
+            { id },
+            { autoCommit: true }
+        );
+        
+        // Luego eliminar el pedido
+        const result = await connection.execute(
+            `DELETE FROM Pedidos WHERE id = :id`,
+            { id },
+            { autoCommit: true }
+        );
+        
+        if(result.rowsAffected == 1) return {success: true};
+        else return {success: false, message: "No se encontró el pedido"};
+        
+    } catch (err) {
+        console.error("Error al eliminar pedido: ", err);
+        return {success: false, message: err.message};
+    } finally {
+        if(connection){
+            try { await connection.close(); }
+            catch (err) { console.log("Error al cerrar conexión: ", err) }
+        }
+    }
+}
+
+async function updatePedido(id, fecha, clienteID, productos) {
+    let connection;
+    try {
+        connection = await oracledb.getConnection();
+        
+        // Actualizar pedido principal
+        const resultPedido = await connection.execute(
+            `UPDATE Pedidos SET fecha = TO_DATE(:fecha, 'YYYY-MM-DD HH24:MI:SS'), 
+             clienteID = :clienteID WHERE id = :id`,
+            { id, fecha, clienteID },
+            { autoCommit: true }
+        );
+
+        if(resultPedido.rowsAffected !== 1) {
+            return {success: false, message: "No se encontró el pedido"};
+        }
+
+        // Eliminar productos antiguos
+        await connection.execute(
+            `DELETE FROM Pedidos_productos WHERE pedidoID = :id`,
+            { id },
+            { autoCommit: true }
+        );
+
+        // Insertar nuevos productos
+        for(const producto of productos) {
+            await connection.execute(
+                `INSERT INTO Pedidos_productos (id, pedidoID, productoID, cantidad) 
+                 VALUES (pedidos_productos_seq.NEXTVAL, :pedidoID, :productoID, :cantidad)`,
+                {
+                    pedidoID: id,
+                    productoID: producto.productoID,
+                    cantidad: producto.cantidad
+                },
+                { autoCommit: true }
+            );
+        }
+
+        return {success: true};
+    } catch (err) {
+        console.error("Error al actualizar pedido: ", err);
+        return {success: false, message: err.message};
+    } finally {
+        if(connection){
+            try { await connection.close(); }
+            catch (err) { console.log("Error al cerrar conexión: ", err) }
+        }
+    }
+}
+
+
 module.exports = {
     getOrders,
     insertPedido,
+    deletePedido,
+    updatePedido,
     getOrdersByDate
 };
