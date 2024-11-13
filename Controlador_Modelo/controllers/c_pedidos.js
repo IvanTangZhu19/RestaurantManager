@@ -9,17 +9,6 @@ async function getAllOrders(req, res) {
     }
 }
 
-async function getOrdersByDate(req, res) {
-    try{
-        const {dia, mes, año} = req.body;
-        if(!dia || !mes || !año) return res.status(400).json({error: "Faltan datos"});
-        const pedidos = await pedidoModel.getOrdersByDate(dia, mes, año);
-        res.status(200).json(pedidos);
-    }catch (err){
-        res.status(500).json({mensaje: "Error al obtener pedidos "+ err});
-    }
-}
-
 async function insertOrder(req, res) {
     try{
         const {fecha, clienteID, productos} = req.body;
@@ -68,18 +57,27 @@ async function updateOrder(req, res) {
     }
 }
 
-async function getOrdersByClient(req, res) {
+async function getOrdersByDate(req, res) {
     try {
-        const { clienteID } = req.params;
-        if (!clienteID) return res.status(400).json({error: "Falta el ID del cliente"});
-        
-        const pedidos = await pedidoModel.getOrdersByClient(clienteID);
+        const { dia, mes, año } = req.body;
+        if (!dia || !mes || !año) return res.status(400).json({ error: "Faltan datos" });
+        const pedidos = await pedidoModel.getOrdersByDate(dia, mes, año);
         res.status(200).json(pedidos);
     } catch (err) {
-        res.status(500).json({mensaje: "Error al obtener pedidos: " + err.message});
+        res.status(500).json({ mensaje: "Error al obtener pedidos por fecha: " + err.message });
     }
 }
 
+async function getOrdersByClient(req, res) {
+    try {
+        const { clienteID } = req.params;
+        if (!clienteID) return res.status(400).json({ error: "Falta el ID del cliente" });
+        const pedidos = await pedidoModel.getOrdersByClient(clienteID);
+        res.status(200).json(pedidos);
+    } catch (err) {
+        res.status(500).json({ mensaje: "Error al obtener pedidos por cliente: " + err.message });
+    }
+}
 
 module.exports = {
     getAllOrders,

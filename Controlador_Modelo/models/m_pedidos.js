@@ -21,26 +21,27 @@ async function getOrders(){
     }
 }
 
-async function getOrdersByDate(dia, mes, año){
+async function getOrdersByDate(dia, mes, año) {
     let connection;
 
     const fecha = `${año}-${mes.toString().padStart(2, '0')}-${dia.toString().padStart(2, '0')}`;
     try {
         connection = await oracledb.getConnection();
         const query = `SELECT * FROM PEDIDOS p 
-	        JOIN CLIENTES c ON p.clienteID = c.id 
-	        JOIN PEDIDOS_PRODUCTOS pp ON p.id = pp.PEDIDOID 
-	        JOIN PRODUCTOS pro ON pp.PRODUCTOID = pro.id 
+            JOIN CLIENTES c ON p.clienteID = c.id 
+            JOIN PEDIDOS_PRODUCTOS pp ON p.id = pp.PEDIDOID 
+            JOIN PRODUCTOS pro ON pp.PRODUCTOID = pro.id 
             WHERE TRUNC(p.fecha) = TO_DATE(:fecha, 'YYYY-MM-DD')`;
-        const result = await connection.execute(query, {fecha});
-        const datosOrganizados=organizarPedidos(result.rows);
+        const result = await connection.execute(query, { fecha });
+        const datosOrganizados = organizarPedidos(result.rows);
         return datosOrganizados;
     } catch (err) {
-        console.error("Error al obtener pedidos: ", err);
+        console.error("Error al obtener pedidos por fecha: ", err);
+        throw err;
     } finally {
-        if(connection){
-            try { await connection.close();}
-            catch (err) { console.log("Error al cerrar conexión: ", err)}
+        if (connection) {
+            try { await connection.close(); }
+            catch (err) { console.log("Error al cerrar conexión: ", err) }
         }
     }
 }
@@ -48,24 +49,24 @@ async function getOrdersByClient(clienteID) {
     let connection;
     try {
         connection = await oracledb.getConnection();
-        const query = `SELECT * FROM PEDIDOS p 
-            JOIN CLIENTES c ON p.clienteID = c.id 
-            JOIN PEDIDOS_PRODUCTOS pp ON p.id = pp.PEDIDOID 
-            JOIN PRODUCTOS pro ON pp.PRODUCTOID = pro.id 
-            WHERE p.clienteID = :clienteID`;
-        const result = await connection.execute(query, {clienteID});
+        const query = 'SELECT * FROM PEDIDOS p ' +
+            'JOIN CLIENTES c ON p.clienteID = c.id ' +
+            'JOIN PEDIDOS_PRODUCTOS pp ON p.id = pp.PEDIDOID ' +
+            'JOIN PRODUCTOS pro ON pp.PRODUCTOID = pro.id ' +
+            'WHERE p.clienteID = :clienteID';
+        const result = await connection.execute(query, { clienteID });
         const datosOrganizados = organizarPedidos(result.rows);
         return datosOrganizados;
     } catch (err) {
         console.error("Error al obtener pedidos por cliente: ", err);
+        throw err;
     } finally {
-        if(connection){
+        if (connection) {
             try { await connection.close(); }
             catch (err) { console.log("Error al cerrar conexión: ", err) }
         }
     }
 }
-
 function organizarPedidos(datos) {
     const pedidos = [];
   
@@ -244,6 +245,7 @@ async function updatePedido(id, fecha, clienteID, productos) {
         }
     }
 }
+
 module.exports = {
     getOrders,
     insertPedido,

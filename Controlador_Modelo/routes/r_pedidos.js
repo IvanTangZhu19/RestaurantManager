@@ -8,4 +8,8 @@ router.post('/fecha', pedidoController.getOrdersByDate);
 
 router.post('/pedido', pedidoController.insertOrder);
 
+router.post('/pedidos/fecha', c_pedidos.getOrdersByDate);
+
+router.get('/pedidos/cliente/:clienteID', c_pedidos.getOrdersByClient);
+
 module.exports = router;    
