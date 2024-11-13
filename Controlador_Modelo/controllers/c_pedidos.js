@@ -34,9 +34,58 @@ async function insertOrder(req, res) {
         res.status(500).json({error: "Error al crear pedido"});
     }
 }
+async function deleteOrder(req, res) {
+    try {
+        const { id } = req.params;
+        if (!id) return res.status(400).json({error: "Falta el ID del pedido"});
+        
+        const result = await pedidoModel.deletePedido(id);
+        if (result.success) {
+            res.status(200).json({message: "Pedido eliminado exitosamente"});
+        } else {
+            res.status(400).json({message: result.message});
+        }
+    } catch (err) {
+        res.status(500).json({error: "Error al eliminar el pedido: " + err.message});
+    }
+}
+
+async function updateOrder(req, res) {
+    try {
+        const { id, fecha, clienteID, productos } = req.body;
+        if (!id || !fecha || !clienteID || !productos) {
+            return res.status(400).json({error: "Faltan datos requeridos"});
+        }
+
+        const result = await pedidoModel.updatePedido(id, fecha, clienteID, productos);
+        if (result.success) {
+            res.status(200).json({message: "Pedido actualizado exitosamente"});
+        } else {
+            res.status(400).json({message: result.message});
+        }
+    } catch (err) {
+        res.status(500).json({error: "Error al actualizar el pedido: " + err.message});
+    }
+}
+
+async function getOrdersByClient(req, res) {
+    try {
+        const { clienteID } = req.params;
+        if (!clienteID) return res.status(400).json({error: "Falta el ID del cliente"});
+        
+        const pedidos = await pedidoModel.getOrdersByClient(clienteID);
+        res.status(200).json(pedidos);
+    } catch (err) {
+        res.status(500).json({mensaje: "Error al obtener pedidos: " + err.message});
+    }
+}
+
 
 module.exports = {
     getAllOrders,
     getOrdersByDate,
+    updateOrder,
+    deleteOrder,
     insertOrder,
+    getOrdersByClient
 };
