@@ -1,7 +1,8 @@
 <template>
     <Layout>
-      <div class="clients-container">
-        <table v-if="clients.length" class="client-table">
+      <div class="container">
+        <button @click="openAddModal" class="open-modal-btn">Agregar Cliente</button>
+        <table v-if="clients.length" class="table">
           <thead>
             <tr>
               <th>Código</th>
@@ -18,27 +19,41 @@
               <td>{{ client[2] }}</td>
               <td>{{ client[3] }}</td>
               <td>{{ client[4] }}</td>
+              <td>
+              <button @click="openEditModal(client)" class="edit-btn">Editar</button>
+            </td>
             </tr>
           </tbody>
         </table>
-        <button @click="showModal = true" class="open-modal-btn">Agregar Cliente</button>
         <div v-if="showModal" class="modal-overlay">
-          <div class="modal">
-            <form @submit.prevent="insertClient" class="client-form">
-              <h3>Agregar Nuevo Cliente</h3>
-              <input type="text" v-model="newClient.nombre" placeholder="Nombre" required />
-              <input type="text" v-model="newClient.direccion" placeholder="Dirección" required />
-              <input type="text" v-model="newClient.telefono" placeholder="Teléfono" required />
-              <input type="text" v-model="newClient.descripcion" placeholder="Descripción" required />
-              <div class="modal-actions">
-                <button type="submit" class="submit-btn">Agregar Cliente</button>
-                <button type="button" @click="showModal = false" class="close-btn">Cancelar</button>
-              </div>
-              <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
-              <p v-if="successMessage" class="success">{{ successMessage }}</p>
-            </form>
-          </div>
+        <div class="modal">
+          <form @submit.prevent="isEditing ? updateProduct() : insertProduct()" class="form">
+            <h3>{{ isEditing ? 'Editar Producto' : 'Agregar Nuevo Producto' }}</h3>
+            <div class="form-group">
+              <label>Nombre</label>
+              <input type="text" v-model="newClient.nombre" placeholder=" " required />
+            </div>
+            <div class="form-group">
+              <label>Direccion</label>
+              <input type="text" v-model="newClient.direccion" placeholder=" " required />
+            </div>
+            <div class="form-group">
+              <label>Telefono</label>
+              <input type="number" v-model="newClient.telefono" placeholder=" " required />
+            </div>
+            <div class="form-group">
+              <label>Descripción</label>
+              <input type="text" v-model="newClient.descripcion" placeholder=" " required />
+            </div>
+            <div class="modal-actions">
+              <button type="submit" class="submit-btn">{{ isEditing ? 'Guardar Cambios' : 'Agregar Producto' }}</button>
+              <button type="button" @click="closeModal" class="close-btn">Cancelar</button>
+            </div>
+            <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+            <p v-if="successMessage" class="success">{{ successMessage }}</p>
+          </form>
         </div>
+      </div>
       </div>
     </Layout>
   </template>
@@ -64,7 +79,8 @@
         },
         errorMessage: '',
         successMessage: '',
-        showModal: false
+        showModal: false,
+        isEditing: false
       };
     },
     methods: {
@@ -75,6 +91,11 @@
         } catch (err) {
           this.errorMessage = 'Error al cargar clientes: ' + err.message;
         }
+      },
+      openAddModal() {
+        this.isEditing = false;
+        this.newProduct = { nombre: '', precio: 0, costo: 0 };
+        this.showModal = true;
       },
       async insertClient() {
         try {
@@ -96,6 +117,34 @@
           timer: 2000,
           showConfirmButton: false
         });
+      },
+      async updateProduct(){
+        try {
+          const response = await axios.put('http://localhost:4001/clientes/actualizarCliente', this.newClient);
+          if (response.status === 201) {
+            this.mostrarMensaje('Cliente actualizado', 'success' );
+            this.fetchClients(); // Actualiza la lista
+            this.closeModal();
+          }
+        } catch (err) {
+          this.mostrarMensaje('Error'+err, 'error');
+        }
+      },
+      openEditModal(client) {
+        this.isEditing = true;
+        this.newClient = {
+          id: client[0],
+          nombre: client[1],
+          direccion: client[2],
+          telefono: client[4],
+          descripcion: client[3]
+        };
+        this.showModal = true;
+      },
+      closeModal() {
+        this.showModal = false;
+        this.errorMessage = '';
+        this.successMessage = '';
       }
     },
     async created() {
@@ -105,112 +154,11 @@
   </script>
   
   <style scoped>
-  .clients-container {
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
-    text-align: left;
-  }
-  
-  .client-form {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .client-form input {
-    margin-bottom: 10px;
-  }
-  
-  button {
-    background-color: #f35c5c;
-    color: white;
-    padding: 10px;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .error {
-    color: red;
-  }
-  
-  .success {
-    color: green;
-  }
-  .client-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    margin: 20px 0;
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    overflow: hidden;
-  }
-
-  .client-table th, .client-table td {
-    padding: 12px 15px;
-    text-align: left;
-  }
-
-  .client-table th {
-    background-color: #f35c5c;
-    color: white;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-size: 16px;
-  }
-
-  .client-table tbody tr {
-    background-color: #f8f8f8;
-    border-bottom: 1px solid #ddd;
-  }
-
-  .client-table tbody tr:nth-child(even) {
-    background-color: #f2f2f2;
-  }
-
-  .client-table tbody tr:hover {
-    background-color: #e0f7fa;
-    cursor: pointer;
-  }
-
-  .client-table td {
-    font-size: 15px;
-    color: #333;
-  }
-
-  .client-table tr:last-child td {
-    border-bottom: none;
-  }
-  .open-modal-btn {
-  padding: 10px 20px;
-  background-color: #f35c5c;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
+  .container {
   width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal {
-  background-color: #fff;
-  border-radius: 10px;
-  padding: 20px;
-  width: 400px;
-  max-width: 90%;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: left;
 }
 
 .client-form {
@@ -218,43 +166,173 @@
   flex-direction: column;
 }
 
-.client-form h3 {
-  margin-bottom: 15px;
-  font-size: 20px;
-  text-align: center;
-}
-
 .client-form input {
   margin-bottom: 10px;
+}
+
+button {
+  background-color: #f35c5c;
+  color: white;
   padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+.error {
+  color: red;
+}
+
+.success {
+  color: green;
+}
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 20px 0;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.table th, .table td {
+  padding: 12px 15px;
+  text-align: left;
+}
+
+.table th {
+  background-color: #f35c5c;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 16px;
+}
+
+.table tbody tr {
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #ddd;
+}
+
+.table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.table tbody tr:hover {
+  background-color: #e0f7fa;
+  cursor: pointer;
+}
+
+.table td {
   font-size: 15px;
+  color: #333;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+.open-modal-btn {
+padding: 10px 20px;
+background-color: #f35c5c;
+color: white;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+font-size: 16px;
+}
+
+.modal-overlay {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-color: rgba(0, 0, 0, 0.5);
+display: flex;
+justify-content: center;
+align-items: center;
+z-index: 1000;
+}
+
+.modal {
+background-color: #fff;
+border-radius: 10px;
+padding: 20px;
+width: 400px;
+max-width: 90%;
+box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.form {
+display: flex;
+flex-direction: column;
+}
+
+.form h3 {
+margin-bottom: 15px;
+font-size: 20px;
+text-align: center;
+}
+
+.form input {
+margin-bottom: 10px;
+padding: 10px;
+border: 1px solid #ccc;
+border-radius: 5px;
+font-size: 15px;
 }
 
 .modal-actions {
-  display: flex;
-  justify-content: space-between;
+display: flex;
+justify-content: space-between;
 }
 
 .submit-btn {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
+background-color: #4CAF50;
+color: white;
+border: none;
+padding: 10px 15px;
+border-radius: 5px;
+cursor: pointer;
+font-size: 15px;
 }
 
 .close-btn {
-  background-color: #f44336;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
+background-color: #f44336;
+color: white;
+border: none;
+padding: 10px 15px;
+border-radius: 5px;
+cursor: pointer;
+font-size: 15px;
 }
+
+.edit-btn {
+  background-color: #f0ad4e;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 15px;
+}
+.edit-btn:hover {
+  background-color: #ec971f;
+}
+
+.form-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.form-group input {
+  flex: 1;
+  padding: 8px;
+  margin-right: 10px;
+}
+
+.form-group label {
+  width: 100px; /* Define el ancho de las etiquetas */
+}
+
   </style>
   
