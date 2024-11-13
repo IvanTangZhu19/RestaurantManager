@@ -9,6 +9,7 @@
             <th>Nombre</th>
             <th>Precio unitario</th>
             <th>Costo</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -19,6 +20,7 @@
             <td>{{ product[3] }}</td>
             <td>
               <button @click="openEditModal(product)" class="edit-btn">Editar</button>
+              <button @click="confirmDelete(product[0])" class="delete-btn">Eliminar</button>
             </td>
           </tr>
         </tbody>
@@ -96,24 +98,51 @@ export default {
         const response = await axios.post('http://localhost:4001/productos/producto', this.newProduct);
         if (response.status === 201) {
           this.mostrarMensaje('Producto agregado', 'success' );
-          this.fetchProducts(); // Actualiza la lista
+          this.fetchProducts();
           this.closeModal();
         }
       } catch (err) {
-        this.mostrarMensaje('Error'+err, 'error');
+        this.mostrarMensaje('Error: ' + err.message, 'error');
       }
     },
-    async updateProduct(){
+    async updateProduct() {
       try {
         const response = await axios.put('http://localhost:4001/productos/actualizarProducto', this.newProduct);
         if (response.status === 201) {
-          this.mostrarMensaje('Producto actualizado', 'success' );
-          this.fetchProducts(); // Actualiza la lista
+          this.mostrarMensaje('Producto actualizado', 'success');
+          this.fetchProducts();
           this.closeModal();
         }
       } catch (err) {
-        this.mostrarMensaje('Error'+err, 'error');
+        this.mostrarMensaje('Error: ' + err.message, 'error');
       }
+    },
+    async deleteProduct(id) {
+      try {
+        const response = await axios.delete(`http://localhost:4001/productos/eliminarProducto/${id}`);
+        if (response.status === 200) {
+          this.mostrarMensaje('Producto eliminado', 'success');
+          this.fetchProducts();
+        }
+      } catch (err) {
+        this.mostrarMensaje('Error: ' + err.message, 'error');
+      }
+    },
+    confirmDelete(id) {
+      Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Este cambio no se puede deshacer',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.deleteProduct(id);
+        }
+      });
     },
     openEditModal(product) {
       this.isEditing = true;
@@ -130,7 +159,7 @@ export default {
       this.errorMessage = '';
       this.successMessage = '';
     },
-    mostrarMensaje(titulo, icon){
+    mostrarMensaje(titulo, icon) {
       Swal.fire({
         title: titulo,
         icon: icon,
@@ -160,6 +189,17 @@ export default {
 
 .client-form input {
   margin-bottom: 10px;
+}
+.delete-btn {
+  background-color: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 15px;
+}
+.delete-btn:hover {
+  background-color: #c0392b;
 }
 
 button {
