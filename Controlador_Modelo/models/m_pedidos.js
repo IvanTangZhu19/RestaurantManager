@@ -244,9 +244,6 @@ async function updatePedido(id, fecha, clienteID, productos) {
         }
     }
 }
-
-
-
 module.exports = {
     getOrders,
     insertPedido,
