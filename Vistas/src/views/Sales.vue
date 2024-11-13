@@ -1,14 +1,33 @@
 <template>
   <Layout>
     <div class="pedidos-container">
-      <!-- Header with Add Order Button -->
+      <!-- Header with Add Order Button and Filtering Options -->
       <div class="header-actions">
         <h2>Gestión de Pedidos</h2>
+        <div class="filtering-options">
+          <div class="form-group">
+            <label>Filtrar por fecha:</label>
+            <div class="date-input">
+              <input type="number" v-model="filterDate.dia" placeholder="Día" min="1" max="31" />
+              <input type="number" v-model="filterDate.mes" placeholder="Mes" min="1" max="12" />
+              <input type="number" v-model="filterDate.año" placeholder="Año" />
+            </div>
+            <button class="btn-primary" @click="fetchOrdersByDate">Buscar</button>
+          </div>
+          <div class="form-group">
+            <label>Filtrar por cliente:</label>
+            <select v-model="selectedClient" @change="fetchOrdersByClient">
+              <option value="">Todos los clientes</option>
+              <option v-for="cliente in clientes" :key="cliente.id" :value="cliente.id">
+                {{ cliente.nombre }}
+              </option>
+            </select>
+          </div>
+        </div>
         <button class="btn-primary" @click="showCreateModal = true">
           Nuevo Pedido
         </button>
       </div>
-
       <!-- Orders Grid -->
       <div v-if="pedidos.length" class="pedidos-grid">
         <div class="pedido-card" v-for="pedido in pedidos" :key="pedido.id">
@@ -37,7 +56,6 @@
         </div>
       </div>
       <p v-else>No hay pedidos disponibles.</p>
-
       <!-- Create/Edit Modal -->
       <div v-if="showCreateModal || showEditModal" class="modal">
         <div class="modal-content">
@@ -99,6 +117,12 @@ export default {
         productos: [],
         fecha: new Date().toISOString()
       },
+      filterDate: {
+        dia: null,
+        mes: null,
+        año: null
+      },
+      selectedClient: null
     };
   },
   methods: {
@@ -218,6 +242,12 @@ export default {
         productos: [],
         fecha: new Date().toISOString()
       };
+      this.filterDate = {
+        dia: null,
+        mes: null,
+        año: null
+      };
+      this.selectedClient = null;
     },
 
     formatDate(dateString) {
@@ -238,11 +268,40 @@ export default {
         timer: 2000,
         showConfirmButton: false
       });
+    },
+    async fetchOrdersByDate() {
+      try {
+        const { dia, mes, año } = this.filterDate;
+        if (!dia || !mes || !año) {
+          this.mostrarMensaje('Por favor, ingresa una fecha válida', 'error');
+          return;
+        }
+        const response = await axios.post('http://localhost:4001/pedidos/fecha', { dia, mes, año });
+        this.pedidos = response.data;
+      } catch (error) {
+        this.mostrarMensaje('Error al cargar pedidos por fecha', 'error');
+      }
+    },
+    async fetchOrdersByClient(clienteID) {
+      try {
+        const response = await axios.get(`http://localhost:4001/pedidos/cliente/${clienteID || ''}`);
+        this.pedidos = response.data;
+      } catch (error) {
+        this.mostrarMensaje('Error al cargar pedidos por cliente', 'error');
+      }
+    },
+    async fetchAllOrders() {
+      try {
+        const response = await axios.get('http://localhost:4001/pedidos');
+        this.pedidos = response.data;
+      } catch (error) {
+        this.mostrarMensaje('Error al cargar pedidos', 'error');
+      }
     }
   },
   async created() {
     await Promise.all([
-      this.fetchPedidos(),
+      this.fetchAllOrders(),
       this.fetchClientes(),
       this.fetchProductos()
     ]);
@@ -389,5 +448,48 @@ input, select {
   font-weight: bold;
   border-top: 2px solid #ddd;
   padding-top: 10px;
+}
+
+.filtering-options {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.filtering-options .form-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0;
+}
+
+.filtering-options label {
+  margin-right: 10px;
+  white-space: nowrap;
+}
+
+.date-input {
+  display: flex;
+  gap: 10px;
+}
+
+.date-input input {
+  width: 80px;
+}
+
+@media (max-width: 767px) {
+  .header-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .filtering-options {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pedidos-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
