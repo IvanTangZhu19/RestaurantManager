@@ -44,6 +44,8 @@
 </template>
 
 <script>
+
+import axios from 'axios';
 export default {
   name: 'Register',
   data() {
@@ -66,7 +68,7 @@ export default {
       const response = await axios.post('http://localhost:4001/usuarios/usuario', {
         nombre: this.formData.usuario,
         contraseña: this.formData.contrasena,
-        rol: 'usuario' 
+        rol: 'Admin' 
       });
       
       if (response.status === 201) {

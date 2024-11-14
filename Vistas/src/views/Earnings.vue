@@ -6,15 +6,15 @@
           <div class="card bg-red-500 p-4 rounded-lg shadow-lg">
             <h2 class="text-xl font-bold mb-2 text-white">Ganancias hoy</h2>
             <h2 class="text-xl font-bold mb-2 text-white">{{ hoy.año }} / {{ hoy.mes }} / {{ hoy.dia }}</h2>
-            <p class="text-2xl text-white">{{ gananciasHoy[0] | formatCurrency }}</p>
+            <p class="text-2xl text-white">{{ gananciasHoy[0][0] | formatCurrency }}</p>
           </div>
           <div class="card bg-green-600 p-4 rounded-lg shadow-lg mt-4">
             <h2 class="text-xl font-bold mb-2 text-white">Total de Costos</h2>
-            <p class="text-2xl text-white">{{ gananciasHoy[1] | formatCurrency }}</p>
+            <p class="text-2xl text-white">{{ gananciasHoy[0][1] | formatCurrency }}</p>
           </div>
           <div class="card bg-yellow-500 p-4 rounded-lg shadow-lg mt-4">
             <h2 class="text-xl font-bold mb-2 text-white">Ganancia Total</h2>
-            <p class="text-2xl text-white">{{ gananciasHoy[2] | formatCurrency }}</p>
+            <p class="text-2xl text-white">{{ gananciasHoy[0][2] | formatCurrency }}</p>
           </div>
         </div>
         <template v-for="month in salesData" :key="month[0]">
@@ -34,23 +34,6 @@
             </div>
           </div>
         </template>
-      </div>
-      <h2 class="text-2xl font-bold mt-8 mb-4 font-family: 'Playfair Display', serif;">Productos más Vendidos</h2>
-      <div class="bg-white p-4 rounded-md shadow">
-        <table class="w-full">
-          <thead>
-            <tr class="bg-f35c5c text-white">
-              <th class="px-4 py-2 text-left">Producto</th>
-              <th class="px-4 py-2 text-right">Total Vendido</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="product in topProducts" :key="product.id" class="border-b">
-              <td class="px-4 py-2 text-left">{{ product.nombre }}</td>
-              <td class="px-4 py-2 text-right">{{ product.totalVendido | formatCurrency }}</td>
-            </tr>
-          </tbody>
-        </table>
       </div>
     </div>
   </Layout>
