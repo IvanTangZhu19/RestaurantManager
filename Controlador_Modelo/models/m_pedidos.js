@@ -254,11 +254,11 @@ async function getSalesData() {
                 TO_CHAR(p.fecha, 'YYYY-MM') AS month,
                 SUM(pp.cantidad * pro.precio) AS total_revenue,
                 SUM(pp.cantidad * pro.costo) AS total_cost,
-                SUM(pp.cantidad * (pro.precio - pro.costo)) AS total_margin
+                SUM(pp.cantidad * (pro.precio - pro.costo)) AS total_margin 
             FROM Pedidos p
-            JOIN Pedidos_producto pp ON p.id = pp.PedidoID  
-            JOIN Productos pro ON pp.productoID = pro.id
-            GROUP BY TO_CHAR(p.fecha, 'YYYY-MM')
+            JOIN Pedidos_productos pp ON p.id = pp.PedidoID  
+            JOIN Productos pro ON pp.productoID = pro.id 
+            GROUP BY TO_CHAR(p.fecha, 'YYYY-MM') 
             ORDER BY month
         `;
         const result = await connection.execute(query);

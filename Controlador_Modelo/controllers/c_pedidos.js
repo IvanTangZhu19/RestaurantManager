@@ -88,7 +88,7 @@ async function getOrdersByClient(req, res) {
         res.status(500).json({ mensaje: "Error al obtener pedidos por cliente: " + err.message });
     }
 }
-async function getSalesData(res) {
+async function getSalesData(req, res) {
     try {
         const salesData = await pedidoModel.getSalesData();
         res.status(200).json(salesData);

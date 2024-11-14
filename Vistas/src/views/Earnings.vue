@@ -1,24 +1,24 @@
 <template>
   <Layout>
-    <div class="container mx-auto my-8">
-      <h1 class="text-3xl font-bold mb-4 font-family: 'Playfair Display', serif;">Ganancias</h1>
-      
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <template v-for="month in salesData" :key="month.month">
-          <div class="bg-f44336 text-white p-4 rounded-md">
-            <h2 class="text-xl font-bold mb-2">{{ month.month }}</h2>
-            <p class="text-2xl">{{ month.total_revenue | formatCurrency }}</p>
+    <div class="flex flex-row flex-wrap gap-4">
+      <template v-for="month in salesData" :key="month[0]">
+        <div class="flex flex-col w-full md:w-1/3 p-4">
+          <div class="card bg-red-500 p-4 rounded-lg shadow-lg">
+            <h2 class="text-xl font-bold mb-2 text-white">Ganancias netas</h2>
+            <h2 class="text-xl font-bold mb-2 text-white">{{ month[0] }}</h2>
+            <p class="text-2xl text-white">{{ month[1] | formatCurrency }}</p>
           </div>
-          <div class="bg-4CAF50 text-white p-4 rounded-md">
-            <h2 class="text-xl font-bold mb-2">Total de Costos</h2>
-            <p class="text-2xl">{{ month.total_cost | formatCurrency }}</p>
+          <div class="card bg-green-600 p-4 rounded-lg shadow-lg mt-4">
+            <h2 class="text-xl font-bold mb-2 text-white">Total de Costos</h2>
+            <p class="text-2xl text-white">{{ month[2] | formatCurrency }}</p>
           </div>
-          <div class="bg-f0ad4e text-white p-4 rounded-md">
-            <h2 class="text-xl font-bold mb-2">Ganancia Total</h2>
-            <p class="text-2xl">{{ month.total_margin | formatCurrency }}</p>
+          <div class="card bg-yellow-500 p-4 rounded-lg shadow-lg mt-4">
+            <h2 class="text-xl font-bold mb-2 text-white">Ganancia Total</h2>
+            <p class="text-2xl text-white">{{ month[3] | formatCurrency }}</p>
           </div>
-        </template>
-      </div>
+        </div>
+      </template>
+    </div>
       
       <h2 class="text-2xl font-bold mt-8 mb-4 font-family: 'Playfair Display', serif;">Productos más Vendidos</h2>
       
@@ -38,12 +38,13 @@
           </tbody>
         </table>
       </div>
-    </div>
+    
   </Layout>
 </template>
 
 <script>
-import Layout from '@/components/Layout.vue'
+import Layout from '@/components/Layout.vue';
+import axios from 'axios';
 
 export default {
   name: 'Earnings',
@@ -68,7 +69,8 @@ export default {
   methods: {
     async fetchSalesData() {
       try {
-        const response = await this.$http.get('/sales-data');
+        const response = await axios.get('http://localhost:4001/pedidos/sales-data');
+        //const response = await this.$http.get('localhost:4001/pedidos/sales-data');
         this.salesData = response.data;
       } catch (error) {
         console.error('Error al obtener datos de ventas:', error);
@@ -105,6 +107,66 @@ export default {
 
 .bg-f35c5c {
   background-color: #f35c5c;
+}
+
+:root {
+  --card-bg-red: #f56565; /* Color de fondo para la tarjeta roja */
+  --card-bg-green: #48bb78; /* Color de fondo para la tarjeta verde */
+  --card-bg-yellow: #ecc94b; /* Color de fondo para la tarjeta amarilla */
+  --text-color: white; /* Color del texto */
+  --border-radius: 12px; /* Radio de borde */
+  --shadow-light: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+  --shadow-heavy: 0 10px 20px rgba(0, 0, 0, 0.15); /* Sombra pesada */
+}
+
+.card {
+  flex: 1 1 30%; /* Hace que las tarjetas ocupen un 30% del contenedor */
+  min-width: 250px;
+  padding: 1rem;
+  color: var(--text-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+  transition: transform 0.2s, box-shadow 0.2s;
+  background-color: inherit; /* Para permitir que el color de fondo sea definido en el HTML */
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-heavy);
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-row {
+  flex-direction: row;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.gap-4 {
+  gap: 1rem;
+}
+
+h2 {
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem; /* Añadir un margen inferior para separar el título del contenido */
+}
+
+/* Opcional: Estilos para tarjetas específicas */
+.card.bg-red-500 {
+  background-color: var(--card-bg-red);
+}
+
+.card.bg-green-600 {
+  background-color: var(--card-bg-green);
+}
+
+.card.bg-yellow-500 {
+  background-color: var(--card-bg-yellow);
 }
 </style>
   
