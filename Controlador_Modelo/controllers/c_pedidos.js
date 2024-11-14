@@ -97,7 +97,6 @@ async function getSalesData(res) {
     }
 }
 
-router.get('/sales-data', (res) => getSalesData(res));
 module.exports = {
     getAllOrders,
     getOrdersByDate,
