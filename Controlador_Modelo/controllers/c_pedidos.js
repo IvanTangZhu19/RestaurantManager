@@ -88,6 +88,16 @@ async function getOrdersByClient(req, res) {
         res.status(500).json({ mensaje: "Error al obtener pedidos por cliente: " + err.message });
     }
 }
+async function getSalesData(req, res) {
+    try {
+      const salesData = await pedidoModel.getSalesData();
+      res.status(200).json(salesData);
+    } catch (err) {
+      res.status(500).json({ mensaje: "Error al obtener datos de ventas: " + err.message });
+    }
+  }
+  
+  router.get('/sales-data', getSalesData);
 
 module.exports = {
     getAllOrders,
@@ -95,5 +105,6 @@ module.exports = {
     updateOrder,
     deleteOrder,
     insertOrder,
+    getSalesData,
     getOrdersByClient
 };

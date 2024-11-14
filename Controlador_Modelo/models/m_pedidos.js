@@ -245,6 +245,31 @@ async function updatePedido(id, fecha, clienteID, productos) {
         }
     }
 }
+async function getSalesData() {
+    let connection;
+    try {
+        connection = await oracledb.getConnection();
+        const query = `
+            SELECT 
+                SUM(pp.cantidad * pro.precio) AS total_revenue,
+                SUM(pp.cantidad * pro.costo) AS total_cost,
+                SUM(pp.cantidad * (pro.precio - pro.costo)) AS total_margin
+            FROM PEDIDOS p
+            JOIN PEDIDOS_PRODUCTOS pp ON p.id = pp.PedidoID
+            JOIN PRODUCTOS pro ON pp.productoID = pro.id
+        `;
+        const result = await connection.execute(query);
+        return result.rows[0];
+    } catch (err) {
+        console.error("Error al obtener datos de ventas: ", err);
+        throw err;
+    } finally {
+        if (connection) {
+            try { await connection.close(); }
+            catch (err) { console.log("Error al cerrar conexión: ", err) }
+        }
+    }
+}
 
 module.exports = {
     getOrders,
@@ -252,5 +277,6 @@ module.exports = {
     deletePedido,
     updatePedido,
     getOrdersByClient,
+    getSalesData,
     getOrdersByDate
 };
