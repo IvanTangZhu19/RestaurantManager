@@ -18,7 +18,7 @@
             <label>Filtrar por cliente:</label>
             <select v-model="selectedClient" @change="fetchOrdersByClient">
               <option value="">Todos los clientes</option>
-              <option v-for="cliente in clientes" :key="cliente.id" :value="cliente.id">
+              <option v-for="cliente in clientes" :key="cliente[0]" :value="cliente[0]">
                 {{ cliente[1] }}
               </option>
             </select>
@@ -77,7 +77,7 @@
                   <option v-for="p in productos" :key="p.id" :value="p[0]">{{ p[1] }}</option>
                 </select>
                 <input type="number" v-model="producto.cantidad" min="1" placeholder="Cantidad">
-                <button type="button" @click="removeProducto(index)" class="btn-remove"></button>
+                <button type="button" @click="removeProducto(index)" class="btn-remove">X</button>
               </div>
               <button type="button" @click="addProducto" class="btn-add">Agregar Producto</button>
             </div>
@@ -113,6 +113,7 @@ export default {
       showCreateModal: false,
       showEditModal: false,
       currentPedido: {
+        id: 0,
         clienteID: null,
         productos: [],
         fecha: new Date()
@@ -174,7 +175,7 @@ export default {
           const response = await axios.post('http://localhost:4001/pedidos/pedido', this.currentPedido);
           if (response.status === 201) {
             this.mostrarMensaje('Pedido creado exitosamente', 'success');
-            await this.fetchPedidos();
+            await this.fetchOrdersByDate();
             this.closeModal();
           }
         } catch (error) {
@@ -184,7 +185,22 @@ export default {
 
     async updatePedido() {
       try {
-        const response = await axios.put(`http://localhost:4001/pedidos/${this.currentPedido.id}`, this.currentPedido);
+        const today = new Date();
+          const day = today.getDate();
+          const month = today.getMonth() + 1;
+          const year = today.getFullYear();
+          const hours = today.getHours();
+          const minutes = today.getMinutes();
+
+          // Formatear la fecha actual
+          this.currentPedido.fecha = `${year}-${month.toString().padStart(2, '0')}-${day
+            .toString().padStart(2, '0')} ${hours.toString().padStart(2, '0')}:${minutes
+            .toString().padStart(2, '0')}`;
+          this.currentPedido.productos = this.currentPedido.productos.map(producto => ({
+            productoID: producto.id,
+            cantidad: producto.cantidad
+        }));
+        const response = await axios.put(`http://localhost:4001/pedidos/actualizar`, this.currentPedido);
         if (response.status === 200) {
           this.mostrarMensaje('Pedido actualizado exitosamente', 'success');
           await this.fetchPedidos();
@@ -208,7 +224,12 @@ export default {
     },
 
     editPedido(pedido) {
-      this.currentPedido = { ...pedido };
+      this.currentPedido = {
+        id: pedido.id,
+        clienteID: pedido.cliente.id,
+        productos: pedido.productos,
+        fecha: ''
+      }
       this.showEditModal = true;
     },
 
@@ -254,7 +275,7 @@ export default {
       this.showCreateModal = false;
       this.showEditModal = false;
       this.currentPedido = {
-        clienteId: null,
+        clienteID: null,
         productos: [],
         fecha: new Date().toISOString()
       };
@@ -267,10 +288,16 @@ export default {
     },
 
     formatDate(dateString) {
-      const options = { year: 'numeric', month: 'long', day: 'numeric' };
-      return new Date(dateString).toLocaleDateString(undefined, options);
+      const options = { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        hour12: false  // Para 24 horas, si prefieres AM/PM, cambia a `true`
+      };
+      return new Date(dateString).toLocaleString(undefined, options);
     },
-
     calcularTotalPedido(pedido) {
       return pedido.productos.reduce((total, producto) => {
         return total + (producto.precio * producto.cantidad);
@@ -408,12 +435,13 @@ export default {
 }
 
 .btn-primary {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
+  padding: 10px 20px;
+background-color: #f35c5c;
+color: white;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+font-size: 16px;
 }
 
 .btn-secondary {
@@ -426,13 +454,28 @@ export default {
 }
 
 .btn-edit {
-  background-color: #ffc107;
-  color: black;
+  background-color: #f0ad4e;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.btn-edit:hover {
+  background-color: #ec971f;
 }
 
 .btn-delete {
-  background-color: #dc3545;
-  color: white;
+  background-color: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 15px;
+}
+.btn-delete:hover {
+  background-color: #c0392b;
 }
 
 .btn-remove {

@@ -12,4 +12,6 @@ router.post('/pedidos/fecha', pedidoController.getOrdersByDate);
 
 router.get('/pedidos/cliente/:clienteID', pedidoController.getOrdersByClient);
 
+router.put('/actualizar', pedidoController.updateOrder);
+
 module.exports = router;    
