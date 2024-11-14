@@ -34,7 +34,7 @@
               <input type="text" v-model="newProduct.nombre" placeholder=" " required />
             </div>
             <div class="form-group">
-              <label>Precio</label>
+              <label>Precio de venta</label>
               <input type="number" v-model="newProduct.precio" placeholder=" " required />
             </div>
             <div class="form-group">
@@ -95,24 +95,32 @@ export default {
     },
     async insertProduct() {
       try {
-        const response = await axios.post('http://localhost:4001/productos/producto', this.newProduct);
-        if (response.status === 201) {
-          this.mostrarMensaje('Producto agregado', 'success' );
-          this.fetchProducts();
-          this.closeModal();
+        if(this.newProduct.precio >= this.newProduct.costo){
+          const response = await axios.post('http://localhost:4001/productos/producto', this.newProduct);
+          if (response.status === 201) {
+            this.mostrarMensaje('Producto agregado', 'success' );
+            this.fetchProducts();
+            this.closeModal();
+          }
+        } else {
+          //this.errorMessage = 'El precio de venta debe de ser mayor que el costo';
+          this.mostrarMensaje('El precio de venta debe de ser mayor que el costo');
         }
+
       } catch (err) {
         this.mostrarMensaje('Error: ' + err.message, 'error');
       }
     },
     async updateProduct() {
       try {
-        const response = await axios.put('http://localhost:4001/productos/actualizarProducto', this.newProduct);
-        if (response.status === 201) {
-          this.mostrarMensaje('Producto actualizado', 'success');
-          this.fetchProducts();
-          this.closeModal();
-        }
+        if(this.newProduct.precio >= this.newProduct.costo){
+          const response = await axios.put('http://localhost:4001/productos/actualizarProducto', this.newProduct);
+          if (response.status === 201) {
+            this.mostrarMensaje('Producto actualizado', 'success');
+            this.fetchProducts();
+            this.closeModal();
+          }
+        } else this.errorMessage = 'El precio de venta debe de ser mayor al costo';
       } catch (err) {
         this.mostrarMensaje('Error: ' + err.message, 'error');
       }

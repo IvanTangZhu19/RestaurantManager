@@ -202,7 +202,7 @@ export default {
         const response = await axios.put(`http://localhost:4001/pedidos/actualizar`, this.currentPedido);
         if (response.status === 200) {
           this.mostrarMensaje('Pedido actualizado exitosamente', 'success');
-          await this.fetchPedidos();
+          await this.fetchOrdersByDate();
           this.closeModal();
         }
       } catch (error) {
