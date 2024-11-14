@@ -251,15 +251,18 @@ async function getSalesData() {
         connection = await oracledb.getConnection();
         const query = `
             SELECT 
+                TO_CHAR(p.fecha, 'YYYY-MM') AS month,
                 SUM(pp.cantidad * pro.precio) AS total_revenue,
                 SUM(pp.cantidad * pro.costo) AS total_cost,
                 SUM(pp.cantidad * (pro.precio - pro.costo)) AS total_margin
             FROM Pedidos p
             JOIN Pedidos_producto pp ON p.id = pp.PedidoID  
             JOIN Productos pro ON pp.productoID = pro.id
+            GROUP BY TO_CHAR(p.fecha, 'YYYY-MM')
+            ORDER BY month
         `;
         const result = await connection.execute(query);
-        return result.rows[0];
+        return result.rows;
     } catch (err) {
         console.error("Error al obtener datos de ventas: ", err);
         throw err;
