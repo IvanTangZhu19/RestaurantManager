@@ -2,6 +2,21 @@
   <Layout>
     <div class="content">
       <div class="flex flex-row flex-wrap gap-4">
+        <div v-if="hayPedidosHoy" class="flex flex-col w-full md:w-1/3 p-4">
+          <div class="card bg-red-500 p-4 rounded-lg shadow-lg">
+            <h2 class="text-xl font-bold mb-2 text-white">Ganancias hoy</h2>
+            <h2 class="text-xl font-bold mb-2 text-white">{{ hoy.año }} / {{ hoy.mes }} / {{ hoy.dia }}</h2>
+            <p class="text-2xl text-white">{{ gananciasHoy[0] | formatCurrency }}</p>
+          </div>
+          <div class="card bg-green-600 p-4 rounded-lg shadow-lg mt-4">
+            <h2 class="text-xl font-bold mb-2 text-white">Total de Costos</h2>
+            <p class="text-2xl text-white">{{ gananciasHoy[1] | formatCurrency }}</p>
+          </div>
+          <div class="card bg-yellow-500 p-4 rounded-lg shadow-lg mt-4">
+            <h2 class="text-xl font-bold mb-2 text-white">Ganancia Total</h2>
+            <p class="text-2xl text-white">{{ gananciasHoy[2] | formatCurrency }}</p>
+          </div>
+        </div>
         <template v-for="month in salesData" :key="month[0]">
           <div class="flex flex-col w-full md:w-1/3 p-4">
             <div class="card bg-red-500 p-4 rounded-lg shadow-lg">
@@ -20,9 +35,7 @@
           </div>
         </template>
       </div>
-      
       <h2 class="text-2xl font-bold mt-8 mb-4 font-family: 'Playfair Display', serif;">Productos más Vendidos</h2>
-      
       <div class="bg-white p-4 rounded-md shadow">
         <table class="w-full">
           <thead>
@@ -55,7 +68,14 @@ export default {
   data() {
     return {
       salesData: [],
-      topProducts: []
+      topProducts: [],
+      gananciasHoy: [],
+      hoy: {
+        dia: 0,
+        mes: 0,
+        año: 0
+      },
+      hayPedidosHoy: false
     }
   },
   filters: {
@@ -65,6 +85,7 @@ export default {
   },
   created() {
     this.fetchSalesData();
+    this.fetchSalesDataByDate();
     this.fetchTopProducts();
   },
   methods: {
@@ -73,6 +94,24 @@ export default {
         const response = await axios.get('http://localhost:4001/pedidos/sales-data');
         //const response = await this.$http.get('localhost:4001/pedidos/sales-data');
         this.salesData = response.data;
+      } catch (error) {
+        console.error('Error al obtener datos de ventas:', error);
+      }
+    },
+    async fetchSalesDataByDate() {
+      try {
+        const today = new Date();
+        const dia = today.getDate();
+        //const dia = 12;
+        const mes = today.getMonth() + 1;
+        const año = today.getFullYear();
+        this.hoy = {dia, mes, año};
+        const response = await axios.post('http://localhost:4001/pedidos/sales-data/date', this.hoy);
+        //const response = await this.$http.get('localhost:4001/pedidos/sales-data');
+        if(response.data[0] && response.data[0].every(item => item === null)){
+          this.hayPedidosHoy = false;
+        } else this.hayPedidosHoy = true;
+        this.gananciasHoy = response.data;
       } catch (error) {
         console.error('Error al obtener datos de ventas:', error);
       }

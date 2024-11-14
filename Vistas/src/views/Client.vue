@@ -27,8 +27,8 @@
         </table>
         <div v-if="showModal" class="modal-overlay">
         <div class="modal">
-          <form @submit.prevent="isEditing ? updateProduct() : insertProduct()" class="form">
-            <h3>{{ isEditing ? 'Editar Producto' : 'Agregar Nuevo Producto' }}</h3>
+          <form @submit.prevent="isEditing ? updateClient() : insertClient()" class="form">
+            <h3>{{ isEditing ? 'Editar Cliente' : 'Agregar Nuevo Cliente' }}</h3>
             <div class="form-group">
               <label>Nombre</label>
               <input type="text" v-model="newClient.nombre" placeholder=" " required />
@@ -46,7 +46,7 @@
               <input type="text" v-model="newClient.descripcion" placeholder=" " required />
             </div>
             <div class="modal-actions">
-              <button type="submit" class="submit-btn">{{ isEditing ? 'Guardar Cambios' : 'Agregar Producto' }}</button>
+              <button type="submit" class="submit-btn">{{ isEditing ? 'Guardar Cambios' : 'Agregar Cliente' }}</button>
               <button type="button" @click="closeModal" class="close-btn">Cancelar</button>
             </div>
             <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
@@ -118,7 +118,7 @@
           showConfirmButton: false
         });
       },
-      async updateProduct(){
+      async updateClient(){
         try {
           const response = await axios.put('http://localhost:4001/clientes/actualizarCliente', this.newClient);
           if (response.status === 201) {

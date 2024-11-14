@@ -97,6 +97,17 @@ async function getSalesData(req, res) {
     }
 }
 
+async function getSalesDataByDate(req, res) {
+    try {
+        const {dia, mes, año} = req.body;
+        if (!dia || !mes || !año) return res.status(400).json({ error: "Faltan datos" });
+        const salesData = await pedidoModel.getSalesDataByDate(dia, mes, año);
+        res.status(200).json(salesData);
+    } catch (err) {
+        res.status(500).json({ mensaje: "Error al obtener datos de ventas: " + err.message });
+    }
+}
+
 module.exports = {
     getAllOrders,
     getOrdersByDate,
@@ -104,5 +115,6 @@ module.exports = {
     deleteOrder,
     insertOrder,
     getSalesData,
-    getOrdersByClient
+    getOrdersByClient,
+    getSalesDataByDate
 };

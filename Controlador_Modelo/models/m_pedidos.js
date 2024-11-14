@@ -274,6 +274,34 @@ async function getSalesData() {
     }
 }
 
+async function getSalesDataByDate(dia, mes, año) {
+    let connection;
+    try {
+        const fecha = `${año}-${mes.toString().padStart(2, '0')}-${dia.toString().padStart(2, '0')}`;
+        connection = await oracledb.getConnection();
+        const query = `
+            SELECT 
+                SUM(pp.cantidad * pro.precio) AS total_revenue,
+                SUM(pp.cantidad * pro.costo) AS total_cost,
+                SUM(pp.cantidad * (pro.precio - pro.costo)) AS total_margin 
+            FROM Pedidos p
+            JOIN Pedidos_productos pp ON p.id = pp.PedidoID  
+            JOIN Productos pro ON pp.productoID = pro.id 
+            WHERE TRUNC(p.fecha) = TO_DATE(:fecha, 'YYYY-MM-DD')
+        `;
+        const result = await connection.execute(query, {fecha});
+        return result.rows;
+    } catch (err) {
+        console.error("Error al obtener datos de ventas: ", err);
+        throw err;
+    } finally {
+        if (connection) {
+            try { await connection.close(); }
+            catch (err) { console.log("Error al cerrar conexión: ", err) }
+        }
+    }
+}
+
 
 module.exports = {
     getOrders,
@@ -282,5 +310,6 @@ module.exports = {
     updatePedido,
     getOrdersByClient,
     getSalesData,
-    getOrdersByDate
+    getOrdersByDate,
+    getSalesDataByDate
 };

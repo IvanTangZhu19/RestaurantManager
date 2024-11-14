@@ -16,4 +16,6 @@ router.put('/actualizar', pedidoController.updateOrder);
 
 router.get('/sales-data', pedidoController.getSalesData);
 
+router.post('/sales-data/date', pedidoController.getSalesDataByDate);
+
 module.exports = router;    
