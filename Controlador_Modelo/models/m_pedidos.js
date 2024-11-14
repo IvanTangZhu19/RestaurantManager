@@ -254,9 +254,9 @@ async function getSalesData() {
                 SUM(pp.cantidad * pro.precio) AS total_revenue,
                 SUM(pp.cantidad * pro.costo) AS total_cost,
                 SUM(pp.cantidad * (pro.precio - pro.costo)) AS total_margin
-            FROM PEDIDOS p
-            JOIN PEDIDOS_PRODUCTOS pp ON p.id = pp.PedidoID
-            JOIN PRODUCTOS pro ON pp.productoID = pro.id
+            FROM Pedidos p
+            JOIN Pedidos_producto pp ON p.id = pp.PedidoID  
+            JOIN Productos pro ON pp.productoID = pro.id
         `;
         const result = await connection.execute(query);
         return result.rows[0];
@@ -270,6 +270,7 @@ async function getSalesData() {
         }
     }
 }
+
 
 module.exports = {
     getOrders,
