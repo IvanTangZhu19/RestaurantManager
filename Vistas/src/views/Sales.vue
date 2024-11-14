@@ -382,6 +382,7 @@ export default {
 }
 
 .pedido-card {
+  color: #333;
   font-family: 'Playfair Display', serif;
   border: 1px solid #ddd;
   border-radius: 10px;
@@ -441,24 +442,31 @@ export default {
 .btn-primary {
   font-family: 'Playfair Display', serif;
   padding: 10px 20px;
-background-color: #f35c5c;
-color: white;
-border: none;
-border-radius: 5px;
-cursor: pointer;
-font-size: 16px;
+  background-color: #f35c5c;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
 }
 
-.btn-secondary {
-  font-family: 'Playfair Display', serif;
-  background-color: #f44336;
-color: white;
-border: none;
-padding: 10px 15px;
-border-radius: 5px;
-cursor: pointer;
-font-size: 15px;
-}
+  .btn-secondary {
+    font-family: 'Playfair Display', serif;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 15px;
+  }
+
+  .producto-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px dashed #ccc;
+  }
 
 .btn-edit {
   font-family: 'Playfair Display', serif;
