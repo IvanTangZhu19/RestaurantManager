@@ -1,3 +1,4 @@
+const { prefetchRows } = require('oracledb');
 const {oracledb} = require('../config/database');
 
 async function getProducts(){
@@ -8,7 +9,6 @@ async function getProducts(){
         return result.rows;
     } catch (err) {
         console.error("Error al obtener usuarios: ", err);
-
     } finally {
         if(connection){
             try { await connection.close();}
@@ -41,12 +41,35 @@ async function getProductById(id){
     try {
         connection = await oracledb.getConnection();
         const result = await connection.execute('SELECT * FROM Productos WHERE id = :id',
-            {id}
+            {id: {
+                val: id,
+                type: oracledb.NUMBER
+            }} 
         );
         return result.rows;
     } catch (err) {
-        console.error("Error al obtene producto por id: ", err);
+        console.error("Error al obtener producto por id: ", err);
+    } finally {
+        if(connection){
+            try { await connection.close();}
+            catch (err) { console.log("Error al cerrar conexión: ", err)}
+        }
+    }
+}
 
+async function getProductsOrdersById(id){
+    let connection;
+    try {
+        connection = await oracledb.getConnection();
+        const result = await connection.execute('SELECT * FROM Pedidos_productos WHERE productoID = :id',
+            {id: {
+                val: id,
+                type: oracledb.NUMBER
+            }} 
+        );
+        return result.rows;
+    } catch (err) {
+        console.error("Error al obtener producto por id: ", err);
     } finally {
         if(connection){
             try { await connection.close();}
@@ -83,16 +106,17 @@ async function insertProduct(nombre, precio, costo){
     }
 }
 
-async function deleteProduct(nombre){
+async function deleteProduct(id){
     let connection;
     try {
         connection = await oracledb.getConnection();
-        const productoExistente = await getProductByName(nombre);
+        const productoExistente = await getProductById(id);
         var result;
+        console.log(productoExistente);
         if(productoExistente.length > 0){
             result = await connection.execute(
-                `DELETE FROM Productos WHERE nombre = :nombre`,
-                { nombre },
+                `DELETE FROM Productos WHERE id = :id`,
+                { id },
                 {autoCommit: true}
             );
             if(result.rowsAffected == 1) return {success: true};
@@ -141,5 +165,6 @@ module.exports = {
     getProductByName,
     insertProduct,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    getProductsOrdersById
 };

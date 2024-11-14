@@ -6,7 +6,7 @@ router.get('/', productsController.getAllProducts);
 
 router.post('/producto', productsController.insertProduct);
 
-router.delete('/eliminarProducto', productsController.deleteProduct);
+router.delete('/eliminarProducto/:id', productsController.deleteProduct);
 
 router.put('/actualizarProducto', productsController.updateProduct);
 

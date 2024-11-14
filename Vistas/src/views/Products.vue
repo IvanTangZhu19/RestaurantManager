@@ -120,7 +120,7 @@ export default {
     async deleteProduct(id) {
       try {
         const response = await axios.delete(`http://localhost:4001/productos/eliminarProducto/${id}`);
-        if (response.status === 200) {
+        if (response.status === 201) {
           this.mostrarMensaje('Producto eliminado', 'success');
           this.fetchProducts();
         }
@@ -128,8 +128,8 @@ export default {
         this.mostrarMensaje('Error: ' + err.message, 'error');
       }
     },
-    confirmDelete(id) {
-      Swal.fire({
+    async confirmDelete(id) {
+      const result = await Swal.fire({
         title: '¿Estás seguro?',
         text: 'Este cambio no se puede deshacer',
         icon: 'warning',
@@ -138,11 +138,11 @@ export default {
         cancelButtonColor: '#3085d6',
         confirmButtonText: 'Sí, eliminar',
         cancelButtonText: 'Cancelar'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          this.deleteProduct(id);
-        }
       });
+      if (result.isConfirmed) {
+        await this.deleteProduct(id);
+      }
+      
     },
     openEditModal(product) {
       this.isEditing = true;

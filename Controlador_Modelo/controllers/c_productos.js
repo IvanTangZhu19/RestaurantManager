@@ -27,9 +27,13 @@ async function insertProduct(req, res) {
 
 async function deleteProduct(req, res) {
     try{
-        const {nombre, id} = req.body;
-        if(!nombre) return res.status(400).json({error: "Faltan datos"});
-        const product = await productModel.deleteProduct(nombre);
+        const id_req = req.params.id;
+        const id = parseInt(id_req, 10);
+        console.log(id);
+        const productsInOrders = await productModel.getProductsOrdersById(id);
+        if(productsInOrders.length > 0) return res.status(400).json({message: "No se puede eliminar, hay pedidos con ese producto"});
+        if(!id) return res.status(400).json({error: "Faltan datos"});
+        const product = await productModel.deleteProduct(id);
         if(product.success) {
             res.status(201).json({message: "Producto eliminado"});
         } else {
