@@ -63,6 +63,7 @@ import EventBus from '../event-bus.js';
   
   <style scoped>
   .layout {
+    font-family: 'Playfair Display', serif;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -87,6 +88,7 @@ import EventBus from '../event-bus.js';
   }
   
   .content {
+    font-family: 'Playfair Display', serif;
     display: flex;
     flex: 1;
   }
@@ -115,6 +117,7 @@ import EventBus from '../event-bus.js';
   }
   
   .main-content {
+  font-family: 'Playfair Display', serif;
   flex: 1;
   padding: 2rem;
   background-color: #fff;

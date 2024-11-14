@@ -79,11 +79,11 @@
                 <input type="number" v-model="producto.cantidad" min="1" placeholder="Cantidad">
                 <button type="button" @click="removeProducto(index)" class="btn-remove">X</button>
               </div>
-              <button type="button" @click="addProducto" class="btn-add">Agregar Producto</button>
+              <button type="button" @click="addProducto" class="btn-primary">Agregar Producto</button>
             </div>
 
             <div class="modal-actions">
-              <button type="submit" class="btn-primary">
+              <button type="submit" class="submit-btn">
                 {{ showEditModal ? 'Actualizar' : 'Crear' }}
               </button>
               <button type="button" @click="closeModal" class="btn-secondary">Cancelar</button>
@@ -153,7 +153,6 @@ export default {
         this.mostrarMensaje('Error al cargar productos', 'error');
       }
     },
-
       async createPedido() {
         try {
           const today = new Date();
@@ -325,8 +324,9 @@ export default {
         this.mostrarMensaje('Error al cargar pedidos por fecha', 'error');
       }
     },
-    async fetchOrdersByClient(clienteID) {
+    async fetchOrdersByClient() {
       try {
+        const clienteID = this.selectedClient;
         const response = await axios.get(`http://localhost:4001/pedidos/cliente/${clienteID || ''}`);
         this.pedidos = response.data;
       } catch (error) {
@@ -360,6 +360,7 @@ export default {
 
 <style scoped>
 .pedidos-container {
+  font-family: 'Playfair Display', serif;
   max-width: 1300px;
   margin: 0 auto;
   padding: 20px;
@@ -367,6 +368,7 @@ export default {
 }
 
 .header-actions {
+  font-family: 'Playfair Display', serif;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -380,6 +382,7 @@ export default {
 }
 
 .pedido-card {
+  font-family: 'Playfair Display', serif;
   border: 1px solid #ddd;
   border-radius: 10px;
   padding: 15px;
@@ -409,6 +412,7 @@ export default {
 }
 
 .modal-content {
+  font-family: 'Playfair Display', serif;
   background-color: white;
   padding: 20px;
   border-radius: 8px;
@@ -435,6 +439,7 @@ export default {
 }
 
 .btn-primary {
+  font-family: 'Playfair Display', serif;
   padding: 10px 20px;
 background-color: #f35c5c;
 color: white;
@@ -445,15 +450,18 @@ font-size: 16px;
 }
 
 .btn-secondary {
-  background-color: #6c757d;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
+  font-family: 'Playfair Display', serif;
+  background-color: #f44336;
+color: white;
+border: none;
+padding: 10px 15px;
+border-radius: 5px;
+cursor: pointer;
+font-size: 15px;
 }
 
 .btn-edit {
+  font-family: 'Playfair Display', serif;
   background-color: #f0ad4e;
   color: #fff;
   border: none;
@@ -467,6 +475,7 @@ font-size: 16px;
 }
 
 .btn-delete {
+  font-family: 'Playfair Display', serif;
   background-color: #e74c3c;
   color: #fff;
   border: none;
@@ -479,6 +488,7 @@ font-size: 16px;
 }
 
 .btn-remove {
+  font-family: 'Playfair Display', serif;
   background-color: #dc3545;
   color: white;
   border: none;
@@ -556,5 +566,16 @@ input, select {
   .pedidos-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.submit-btn {
+  font-family: 'Playfair Display', serif;
+background-color: #4CAF50;
+color: white;
+border: none;
+padding: 10px 15px;
+border-radius: 5px;
+cursor: pointer;
+font-size: 15px;
 }
 </style>

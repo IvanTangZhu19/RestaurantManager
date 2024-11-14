@@ -10,7 +10,7 @@ router.post('/pedido', pedidoController.insertOrder);
 
 router.post('/pedidos/fecha', pedidoController.getOrdersByDate);
 
-router.get('/pedidos/cliente/:clienteID', pedidoController.getOrdersByClient);
+router.get('/cliente/:clienteID', pedidoController.getOrdersByClient);
 
 router.put('/actualizar', pedidoController.updateOrder);
 

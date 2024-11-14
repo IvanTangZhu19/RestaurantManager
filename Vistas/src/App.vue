@@ -11,7 +11,7 @@
   <style>
   body {
     margin: 0;
-    font-family: 'Arial', sans-serif;
+    font-family: 'Playfair Display', serif;
     background-color: #f8f8f8;
   }
   </style>

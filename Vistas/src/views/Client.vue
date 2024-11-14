@@ -231,6 +231,7 @@ button {
   border-bottom: none;
 }
 .open-modal-btn {
+  font-family: 'Playfair Display', serif;
 padding: 10px 20px;
 background-color: #f35c5c;
 color: white;

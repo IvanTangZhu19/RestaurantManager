@@ -38,7 +38,6 @@ async function deleteOrder(req, res) {
     try {
         const { id } = req.params;
         if (!id) return res.status(400).json({error: "Falta el ID del pedido"});
-        
         const result = await pedidoModel.deletePedido(id);
         if (result.success) {
             res.status(200).json({message: "Pedido eliminado exitosamente"});
@@ -56,7 +55,6 @@ async function updateOrder(req, res) {
         if (!id || !fecha || !clienteID || !productos) {
             return res.status(400).json({error: "Faltan datos requeridos"});
         }
-
         const result = await pedidoModel.updatePedido(id, fecha, clienteID, productos);
         if (result.success) {
             res.status(200).json({message: "Pedido actualizado exitosamente"});
@@ -82,6 +80,7 @@ async function getOrdersByDate(req, res) {
 async function getOrdersByClient(req, res) {
     try {
         const { clienteID } = req.params;
+        console.log(clienteID);
         if (!clienteID) return res.status(400).json({ error: "Falta el ID del cliente" });
         const pedidos = await pedidoModel.getOrdersByClient(clienteID);
         res.status(200).json(pedidos);
