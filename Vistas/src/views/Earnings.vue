@@ -1,24 +1,25 @@
 <template>
   <Layout>
-    <div class="flex flex-row flex-wrap gap-4">
-      <template v-for="month in salesData" :key="month[0]">
-        <div class="flex flex-col w-full md:w-1/3 p-4">
-          <div class="card bg-red-500 p-4 rounded-lg shadow-lg">
-            <h2 class="text-xl font-bold mb-2 text-white">Ganancias netas</h2>
-            <h2 class="text-xl font-bold mb-2 text-white">{{ month[0] }}</h2>
-            <p class="text-2xl text-white">{{ month[1] | formatCurrency }}</p>
+    <div class="content">
+      <div class="flex flex-row flex-wrap gap-4">
+        <template v-for="month in salesData" :key="month[0]">
+          <div class="flex flex-col w-full md:w-1/3 p-4">
+            <div class="card bg-red-500 p-4 rounded-lg shadow-lg">
+              <h2 class="text-xl font-bold mb-2 text-white">Ganancias</h2>
+              <h2 class="text-xl font-bold mb-2 text-white">{{ month[0] }}</h2>
+              <p class="text-2xl text-white">{{ month[1] | formatCurrency }}</p>
+            </div>
+            <div class="card bg-green-600 p-4 rounded-lg shadow-lg mt-4">
+              <h2 class="text-xl font-bold mb-2 text-white">Total de Costos</h2>
+              <p class="text-2xl text-white">{{ month[2] | formatCurrency }}</p>
+            </div>
+            <div class="card bg-yellow-500 p-4 rounded-lg shadow-lg mt-4">
+              <h2 class="text-xl font-bold mb-2 text-white">Ganancia Total</h2>
+              <p class="text-2xl text-white">{{ month[3] | formatCurrency }}</p>
+            </div>
           </div>
-          <div class="card bg-green-600 p-4 rounded-lg shadow-lg mt-4">
-            <h2 class="text-xl font-bold mb-2 text-white">Total de Costos</h2>
-            <p class="text-2xl text-white">{{ month[2] | formatCurrency }}</p>
-          </div>
-          <div class="card bg-yellow-500 p-4 rounded-lg shadow-lg mt-4">
-            <h2 class="text-xl font-bold mb-2 text-white">Ganancia Total</h2>
-            <p class="text-2xl text-white">{{ month[3] | formatCurrency }}</p>
-          </div>
-        </div>
-      </template>
-    </div>
+        </template>
+      </div>
       
       <h2 class="text-2xl font-bold mt-8 mb-4 font-family: 'Playfair Display', serif;">Productos más Vendidos</h2>
       
@@ -38,7 +39,7 @@
           </tbody>
         </table>
       </div>
-    
+    </div>
   </Layout>
 </template>
 
@@ -89,6 +90,7 @@ export default {
 </script>
 
 <style scoped>
+
 .font-family {
   font-family: 'Playfair Display', serif;
 }
@@ -109,30 +111,21 @@ export default {
   background-color: #f35c5c;
 }
 
-:root {
-  --card-bg-red: #f56565; /* Color de fondo para la tarjeta roja */
-  --card-bg-green: #48bb78; /* Color de fondo para la tarjeta verde */
-  --card-bg-yellow: #ecc94b; /* Color de fondo para la tarjeta amarilla */
-  --text-color: white; /* Color del texto */
-  --border-radius: 12px; /* Radio de borde */
-  --shadow-light: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra ligera */
-  --shadow-heavy: 0 10px 20px rgba(0, 0, 0, 0.15); /* Sombra pesada */
-}
-
 .card {
   flex: 1 1 30%; /* Hace que las tarjetas ocupen un 30% del contenedor */
-  min-width: 250px;
+  min-width: 220px;
   padding: 1rem;
-  color: var(--text-color);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-light);
+  color: white; 
+  border-radius:  12px;
+  margin: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
   transition: transform 0.2s, box-shadow 0.2s;
   background-color: inherit; /* Para permitir que el color de fondo sea definido en el HTML */
 }
 
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: var(--shadow-heavy);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
 }
 
 .flex {
@@ -158,15 +151,15 @@ h2 {
 
 /* Opcional: Estilos para tarjetas específicas */
 .card.bg-red-500 {
-  background-color: var(--card-bg-red);
+  background-color: #f56565;
 }
 
 .card.bg-green-600 {
-  background-color: var(--card-bg-green);
+  background-color: #48bb78;
 }
 
 .card.bg-yellow-500 {
-  background-color: var(--card-bg-yellow);
+  background-color: #ecc94b;
 }
 </style>
   

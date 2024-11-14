@@ -80,7 +80,7 @@ import EventBus from '../event-bus.js';
   
   .header h1 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 2rem;
   }
   
   .user-info {
@@ -88,6 +88,7 @@ import EventBus from '../event-bus.js';
   }
   
   .content {
+    font-size: 1rem;
     font-family: 'Playfair Display', serif;
     display: flex;
     flex: 1;
@@ -128,6 +129,7 @@ import EventBus from '../event-bus.js';
 
 .title-container {
   /* Eliminamos flex: 1 para que no ocupe todo el espacio vertical */
+  font-size: 1.5rem;
   display: flex;
   align-items: flex-start; /* Cambiamos a flex-start para alinear arriba */
   justify-content: center;
