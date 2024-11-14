@@ -14,4 +14,6 @@ router.get('/cliente/:clienteID', pedidoController.getOrdersByClient);
 
 router.put('/actualizar', pedidoController.updateOrder);
 
+router.get('/sales-data', (res) => pedidoController.getSalesData(res));
+
 module.exports = router;    
