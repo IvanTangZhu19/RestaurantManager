@@ -212,10 +212,10 @@ export default {
 
     async deletePedido(pedido) {
       try {
-        const response = await axios.delete(`http://localhost:4001/pedidos/${pedido.id}`);
+        const response = await axios.delete(`http://localhost:4001/pedidos/eliminarPedido/${pedido.id}`);
         if (response.status === 200) {
           this.mostrarMensaje('Pedido eliminado exitosamente', 'success');
-          await this.fetchPedidos();
+          await this.fetchOrdersByDate();
         }
       } catch (error) {
         this.mostrarMensaje('Error al eliminar el pedido', 'error');

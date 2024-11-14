@@ -18,4 +18,6 @@ router.get('/sales-data', pedidoController.getSalesData);
 
 router.post('/sales-data/date', pedidoController.getSalesDataByDate);
 
+router.delete('/eliminarPedido/:id', pedidoController.deleteOrder);
+
 module.exports = router;    
